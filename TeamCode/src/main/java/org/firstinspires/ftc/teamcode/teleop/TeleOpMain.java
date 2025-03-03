@@ -13,9 +13,11 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.commands.instant.PowerIntake;
 import org.firstinspires.ftc.teamcode.commands.MoveSlides;
 import org.firstinspires.ftc.teamcode.commands.instant.RotateArm;
+import org.firstinspires.ftc.teamcode.commands.instant.RotateIntake;
 import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
 import org.firstinspires.ftc.teamcode.subsystems.SensorColor;
 import org.firstinspires.ftc.teamcode.teleopsubs.ITDRobot;
+import org.firstinspires.ftc.teamcode.teleopsubs.Intake;
 
 @TeleOp
 public class TeleOpMain extends CommandOpMode {
@@ -73,14 +75,19 @@ public class TeleOpMain extends CommandOpMode {
         gp2.getGamepadButton(GamepadKeys.Button.Y)
                 .whenPressed(() -> CommandScheduler.getInstance().schedule(new RotateArm(0.03, 0.97)));
         gp2.getGamepadButton(GamepadKeys.Button.A)
-
                 .whenPressed(() -> CommandScheduler.getInstance().schedule(new RotateArm(0.85, 0.15)));
+
         gp2.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                 .whenPressed(() -> CommandScheduler.getInstance().schedule(new PowerIntake(INTAKE_POWER)));
         gp2.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
                 .whenPressed(() -> CommandScheduler.getInstance().schedule(new PowerIntake(-INTAKE_POWER)));
         gp2.getGamepadButton(GamepadKeys.Button.X)
                 .whenPressed(() -> CommandScheduler.getInstance().schedule(new PowerIntake(0)));
+
+        gp2.getGamepadButton(GamepadKeys.Button.DPAD_UP)
+                .whenPressed(() -> CommandScheduler.getInstance().schedule(new RotateIntake(Intake.IntakeState.UP)));
+        gp2.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
+                .whenPressed(() -> CommandScheduler.getInstance().schedule(new RotateIntake(Intake.IntakeState.DOWN)));
 
         hardware.read();
 
@@ -108,18 +115,17 @@ public class TeleOpMain extends CommandOpMode {
             CommandScheduler.getInstance().schedule(new MoveSlides(hardware, 100));
          */
 
-        /* robot.mecanumDriving(
+        robot.mecanumDriving(
                 () -> gamepad1.left_stick_y,
                 () -> gamepad1.right_stick_x,
                 () -> gamepad1.left_stick_x
         );
-         */
 
-        robot.fieldCentric(
+        /*robot.fieldCentric(
                 () -> gamepad1.left_stick_y,
                 () -> gamepad1.right_stick_x,
                 () -> gamepad1.left_stick_x
-        );
+        );*/
 
         switch (slideState) {
             case START:
@@ -210,6 +216,11 @@ public class TeleOpMain extends CommandOpMode {
                 slideState = SlideState.START;
 
         }
+
+        if (gamepad2.dpad_up)
+            CommandScheduler.getInstance().schedule(new RotateIntake(Intake.IntakeState.UP));
+        if (gamepad2.dpad_down)
+            CommandScheduler.getInstance().schedule(new RotateIntake(Intake.IntakeState.DOWN));
 
         telemetry.addData("slidePos", hardware.slides.getVSlidesPos());
         telemetry.addData("hasReached", hardware.slides.hasReached());

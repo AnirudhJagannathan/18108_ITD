@@ -160,7 +160,7 @@ public class WActuatorGroup {
             for (HardwareDevice device : devices.values()) {
                 if (device instanceof DcMotorEx) {
                     double correction = 1.0;
-                    if (voltage != null) correction = 12.0 / voltage.getAsDouble();
+                    if (voltage != null) correction = 13.0 / voltage.getAsDouble();
                     if (!floating) ((DcMotorEx) device).setPower(power * correction);
                     else ((DcMotorEx) device).setPower(0);
                     pPower = power;

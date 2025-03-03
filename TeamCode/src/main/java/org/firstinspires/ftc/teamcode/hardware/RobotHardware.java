@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.teleopsubs.Intake;
 import org.firstinspires.ftc.teamcode.teleopsubs.Slides;
 import org.firstinspires.ftc.teamcode.util.wrappers.WActuatorGroup;
 import org.firstinspires.ftc.teamcode.util.wrappers.WEncoder;
+import org.firstinspires.ftc.teamcode.util.wrappers.WServo;
 
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +42,7 @@ public class RobotHardware {
         public WEncoder hSlideEnc;
 
 
-        public Servo arm1;
+        public WServo arm1;
         public Servo arm2;
         public Servo intake1;
         public Servo intake2;
@@ -99,17 +100,17 @@ public class RobotHardware {
 
             slideRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
-            arm1 = hardwareMap.get(Servo.class, "arm");
-            arm2 = hardwareMap.get(Servo.class, "arm2");
+            arm1 = new WServo(hardwareMap.get(Servo.class, "arm"));
+            arm2 = new WServo(hardwareMap.get(Servo.class, "arm2"));
 
-            intake1 = hardwareMap.get(Servo.class, "intake1");
-            intake2 = hardwareMap.get(Servo.class, "intake2");
+            intake1 = new WServo(hardwareMap.get(Servo.class, "intake1"));
+            intake2 = new WServo(hardwareMap.get(Servo.class, "intake2"));
 
-            clawServo = hardwareMap.get(Servo.class, "claw");
-            swerve = hardwareMap.get(Servo.class, "swerve");
+            clawServo = new WServo(hardwareMap.get(Servo.class, "claw"));
+            swerve = new WServo(hardwareMap.get(Servo.class, "swerve"));
 
-            hypLeft = hardwareMap.get(Servo.class, "hypLeft");
-            hypRight = hardwareMap.get(Servo.class, "hypRight");
+            hypLeft = new WServo(hardwareMap.get(Servo.class, "hypLeft"));
+            hypRight = new WServo(hardwareMap.get(Servo.class, "hypRight"));
 
             colorSensor = hardwareMap.get(NormalizedColorSensor.class, "colorSensor");
 

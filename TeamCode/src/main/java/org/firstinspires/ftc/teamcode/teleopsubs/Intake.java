@@ -20,6 +20,12 @@ public class Intake extends WSubsystem {
 
     private double skibAdjust = 0;
 
+    public enum IntakeState {
+        UP,
+        DOWN,
+        MIDDLE
+    }
+
     public Intake(HardwareMap hardwareMap) {
         /* intake = hardwareMap.get(DcMotorEx.class, "spintake");
         intake1 = hardwareMap.get(Servo.class, "intake1");
@@ -60,6 +66,16 @@ public class Intake extends WSubsystem {
         robot.intake2.setPosition(0.63 - skibAdjust);
     }
 
+    public void flip(boolean up) {
+        if (up) {
+            robot.intake1.setPosition(0.54 + skibAdjust);
+            robot.intake2.setPosition(0.46 - skibAdjust);
+        } else {
+            robot.intake1.setPosition(0.37 + skibAdjust);
+            robot.intake2.setPosition(0.63 - skibAdjust);
+        }
+    }
+
     public double[] getPosition() {
         return new double[]{robot.intake1.getPosition(), robot.intake2.getPosition()};
     }
@@ -72,6 +88,23 @@ public class Intake extends WSubsystem {
     public void flipMid() {
         robot.intake1.setPosition(0.39);
         robot.intake2.setPosition(0.61);
+    }
+
+    public void updateState(IntakeState state) {
+        switch (state){
+            case UP:
+                robot.intake1.setPosition(0.54 + skibAdjust);
+                robot.intake2.setPosition(0.46 - skibAdjust);
+                break;
+            case DOWN:
+                robot.intake1.setPosition(0.37 + skibAdjust);
+                robot.intake2.setPosition(0.63 - skibAdjust);
+                break;
+            case MIDDLE:
+                robot.intake1.setPosition(0.39);
+                robot.intake2.setPosition(0.61);
+                break;
+        }
     }
 
     @Override
