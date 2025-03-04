@@ -2,9 +2,9 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.arcrobotics.ftclib.command.CommandScheduler;
-import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.seattlesolvers.solverslib.command.CommandScheduler;
+import com.seattlesolvers.solverslib.gamepad.GamepadEx;
+import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.subsystems.ClawB;
 import org.firstinspires.ftc.teamcode.subsystems.HypSpool;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.SlidesB;
+import org.firstinspires.ftc.teamcode.teleopsubs.Arm;
 import org.firstinspires.ftc.teamcode.teleopsubs.ITDRobot;
 import org.firstinspires.ftc.teamcode.teleopsubs.Slides;
 
@@ -118,9 +119,9 @@ public class TeleOpTest extends OpMode {
         hardware.init(hardwareMap);
 
         gp2.getGamepadButton(GamepadKeys.Button.Y)
-                .whenPressed(() -> CommandScheduler.getInstance().schedule(new RotateArm(0.03, 0.97)));
+                .whenPressed(() -> CommandScheduler.getInstance().schedule(new RotateArm(Arm.ArmState.UP)));
         gp2.getGamepadButton(GamepadKeys.Button.A)
-                .whenPressed(() -> CommandScheduler.getInstance().schedule(new RotateArm(0.85, 0.15)));
+                .whenPressed(() -> CommandScheduler.getInstance().schedule(new RotateArm(Arm.ArmState.DOWN)));
         /* blinkinLedDriver = hardwareMap.get(RevBlinkinLedDriver.class, "blinkin");
         colorSensor = hardwareMap.get(RevColorSensorV3.class, "colorSensor");
 

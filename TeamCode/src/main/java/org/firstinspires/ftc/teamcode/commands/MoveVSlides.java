@@ -1,14 +1,12 @@
 package org.firstinspires.ftc.teamcode.commands;
 
-import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.Robot;
-import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.seattlesolvers.solverslib.command.InstantCommand;
+import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 
 import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
-import org.firstinspires.ftc.teamcode.teleopsubs.Slides;
 
-public class MoveSlides extends SequentialCommandGroup {
-    public MoveSlides(RobotHardware robot, int pos) {
+public class MoveVSlides extends SequentialCommandGroup {
+    public MoveVSlides(RobotHardware robot, int pos) {
         super(
                 new InstantCommand(() -> robot.slideLeftActuator.setTargetPosition(pos)),
                 new InstantCommand(() -> robot.slideRightActuator.setTargetPosition(pos))

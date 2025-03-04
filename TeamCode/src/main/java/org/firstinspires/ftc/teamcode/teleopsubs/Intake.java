@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleopsubs;
 
-import com.arcrobotics.ftclib.command.SubsystemBase;
+import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -91,14 +91,14 @@ public class Intake extends WSubsystem {
     }
 
     public void updateState(IntakeState state) {
-        switch (state){
-            case UP:
+        switch (state) {
+            case DOWN:
                 robot.intake1.setPosition(0.54 + skibAdjust);
                 robot.intake2.setPosition(0.46 - skibAdjust);
                 break;
-            case DOWN:
-                robot.intake1.setPosition(0.37 + skibAdjust);
-                robot.intake2.setPosition(0.63 - skibAdjust);
+            case UP:
+                robot.intake1.setPosition(0.10 + skibAdjust);
+                robot.intake2.setPosition(0.90 - skibAdjust);
                 break;
             case MIDDLE:
                 robot.intake1.setPosition(0.39);

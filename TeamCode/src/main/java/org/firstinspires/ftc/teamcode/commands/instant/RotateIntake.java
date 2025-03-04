@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.commands.instant;
 
-import com.arcrobotics.ftclib.command.InstantCommand;
+import com.seattlesolvers.solverslib.command.InstantCommand;
 
 import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
 import org.firstinspires.ftc.teamcode.teleopsubs.Intake;

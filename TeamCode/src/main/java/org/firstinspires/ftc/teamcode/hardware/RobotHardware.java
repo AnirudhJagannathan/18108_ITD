@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.controller.PIDController;
-import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.arcrobotics.ftclib.hardware.motors.MotorEx;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.seattlesolvers.solverslib.controller.PIDController;
+import com.seattlesolvers.solverslib.hardware.motors.Motor;
+import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -47,6 +49,8 @@ public class RobotHardware {
         public Servo intake1;
         public Servo intake2;
 
+        public DcMotorEx leftFront, rightFront, leftBack, rightBack;
+
         public Servo hypLeft;
         public Servo hypRight;
         public Servo clawServo;
@@ -59,6 +63,8 @@ public class RobotHardware {
         public SensorColor color;
 
         public NormalizedColorSensor colorSensor;
+
+        public Limelight3A limelight;
 
         public List<LynxModule> modules;
         public LynxModule CONTROL_HUB;
@@ -112,7 +118,22 @@ public class RobotHardware {
             hypLeft = new WServo(hardwareMap.get(Servo.class, "hypLeft"));
             hypRight = new WServo(hardwareMap.get(Servo.class, "hypRight"));
 
+            limelight = hardwareMap.get(Limelight3A.class, "limelight");
+
             colorSensor = hardwareMap.get(NormalizedColorSensor.class, "colorSensor");
+
+            leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+            rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+            leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
+            rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
+
+            leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+            leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+            leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
             testMotor = new MotorEx(hardwareMap, "VSlidesA");
             if (testMotor.encoder.getPosition() == 0)
@@ -203,5 +224,9 @@ public class RobotHardware {
 
     public void setColorSensor(SensorColor color) {
          this.color = color;
+    }
+
+    public DcMotorEx[] getMotors() {
+        return new DcMotorEx[] {leftFront, rightFront, leftBack, rightBack};
     }
 }

@@ -4,8 +4,8 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.arcrobotics.ftclib.command.CommandScheduler;
-import com.arcrobotics.ftclib.command.SubsystemBase;
+import com.seattlesolvers.solverslib.command.CommandScheduler;
+import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -183,15 +183,18 @@ public class Slides extends WSubsystem {
     public void periodic() {
         robot.slideLeftActuator.setCurrentPosition(vSlidesA.getCurrentPosition());
         robot.slideRightActuator.setCurrentPosition(vSlidesB.getCurrentPosition());
+        robot.hSlideActuactor.setCurrentPosition(hSlides.getCurrentPosition());
 
         robot.slideLeftActuator.periodic();
         robot.slideRightActuator.periodic();
+        robot.hSlideActuactor.periodic();
     }
 
     @Override
     public void read() {
         robot.slideLeftActuator.read();
         robot.slideRightActuator.read();
+        robot.hSlideActuactor.read();
     }
 
     @Override
@@ -201,7 +204,11 @@ public class Slides extends WSubsystem {
         robot.hSlideActuactor.write();
     }
 
-    public boolean hasReached() {
+    public boolean hasReachedV() {
         return robot.slideLeftActuator.hasReached() && robot.slideRightActuator.hasReached();
+    }
+
+    public boolean hasReachedH() {
+        return robot.hSlideActuactor.hasReached();
     }
 }

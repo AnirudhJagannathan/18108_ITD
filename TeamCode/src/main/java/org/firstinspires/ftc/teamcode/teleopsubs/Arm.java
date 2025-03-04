@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.teleopsubs;
 
-import com.arcrobotics.ftclib.command.CommandScheduler;
-import com.arcrobotics.ftclib.command.Robot;
-import com.arcrobotics.ftclib.command.SubsystemBase;
+import com.seattlesolvers.solverslib.command.CommandScheduler;
+import com.seattlesolvers.solverslib.command.Robot;
+import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.util.wrappers.WSubsystem;
 
 public class Arm extends WSubsystem {
 
-    private final RobotHardware robot = RobotHardware.getInstance();
+    private final RobotHardware robot;
     private Servo arm1;
     private Servo arm2;
     private double pos1;
@@ -28,9 +28,18 @@ public class Arm extends WSubsystem {
 
     private final double TOLERANCE = 0.005;
 
+    public enum ArmState {
+        UP,
+        DOWN,
+        SPEC,
+        SAMPLE
+    }
+
     public Arm(HardwareMap hardwareMap) {
-        arm1 = hardwareMap.get(Servo.class, "arm");
-        arm2 = hardwareMap.get(Servo.class, "arm2");
+        // arm1 = hardwareMap.get(Servo.class, "arm");
+        // arm2 = hardwareMap.get(Servo.class, "arm2");
+
+        this.robot = RobotHardware.getInstance();
 
         pos1 = 0.85;
         pos2 = 0.15;
@@ -45,6 +54,26 @@ public class Arm extends WSubsystem {
 
         arm1.setPosition(pos1);
         arm2.setPosition(pos2);
+    }
+
+    public void updateState(ArmState state) {
+        switch (state) {
+            case DOWN:
+                robot.arm1.setPosition(0.85);
+                robot.arm2.setPosition(0.15);
+                break;
+            case UP:
+                robot.arm1.setPosition(0.10);
+                robot.arm2.setPosition(0.90);
+                break;
+            case SPEC:
+                robot.arm1.setPosition(1);
+                robot.arm2.setPosition(0.90);
+                break;
+            case SAMPLE:
+                robot.arm1.setPosition(0.14);
+                robot.arm2.setPosition(0.86);
+        }
     }
 
     public void deposit() {
@@ -116,7 +145,7 @@ public class Arm extends WSubsystem {
     }
 
     public void periodic() {
-        double delta1 = (pos1 - init1) / 10;
+        /* double delta1 = (pos1 - init1) / 10;
         double delta2 = (pos2 - init2) / 10;
 
         if (Math.abs(pos1 - arm1.getPosition()) > TOLERANCE || Math.abs(pos2 - arm2.getPosition()) > TOLERANCE) {
@@ -132,17 +161,16 @@ public class Arm extends WSubsystem {
             ((PwmControl) arm1).setPwmDisable();
             ((PwmControl) arm2).setPwmDisable();
         }
-
-        CommandScheduler.getInstance().run();
+         */
     }
 
     @Override
     public void read() {
-
+        // empty
     }
 
     @Override
     public void write() {
-
+        // empty
     }
 }

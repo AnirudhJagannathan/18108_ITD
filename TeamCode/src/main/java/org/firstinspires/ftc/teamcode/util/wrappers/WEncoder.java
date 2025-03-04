@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.util.wrappers;
 
-import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 
 public class WEncoder implements HardwareDevice {
