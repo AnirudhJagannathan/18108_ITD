@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.seattlesolvers.solverslib.controller.PIDController;
@@ -17,6 +18,7 @@ import com.qualcomm.robotcore.hardware.configuration.LynxConstants;
 import org.firstinspires.ftc.teamcode.subsystems.SensorColor;
 import org.firstinspires.ftc.teamcode.teleopsubs.Arm;
 import org.firstinspires.ftc.teamcode.teleopsubs.Claw;
+import org.firstinspires.ftc.teamcode.teleopsubs.FEDHES;
 import org.firstinspires.ftc.teamcode.teleopsubs.Intake;
 import org.firstinspires.ftc.teamcode.teleopsubs.Slides;
 import org.firstinspires.ftc.teamcode.util.wrappers.WActuatorGroup;
@@ -54,13 +56,15 @@ public class RobotHardware {
         public Servo hypLeft;
         public Servo hypRight;
         public Servo clawServo;
-        public Servo swerve;
+        public Servo yawServo;
 
         public Arm arm;
         public Claw claw;
         public Intake spintake;
         public Slides slides;
         public SensorColor color;
+
+        public FEDHES fedhes;
 
         public NormalizedColorSensor colorSensor;
 
@@ -79,6 +83,8 @@ public class RobotHardware {
         private boolean enabled;
 
         private int alliance;
+
+        private double tx;
         private HardwareMap hardwareMap;
 
         public HashMap<Sensors.SensorType, Object> values;
@@ -113,7 +119,7 @@ public class RobotHardware {
             intake2 = new WServo(hardwareMap.get(Servo.class, "intake2"));
 
             clawServo = new WServo(hardwareMap.get(Servo.class, "claw"));
-            swerve = new WServo(hardwareMap.get(Servo.class, "swerve"));
+            yawServo = new WServo(hardwareMap.get(Servo.class, "swerve"));
 
             hypLeft = new WServo(hardwareMap.get(Servo.class, "hypLeft"));
             hypRight = new WServo(hardwareMap.get(Servo.class, "hypRight"));
@@ -121,6 +127,7 @@ public class RobotHardware {
             limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
             colorSensor = hardwareMap.get(NormalizedColorSensor.class, "colorSensor");
+
 
             leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
             rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
@@ -145,17 +152,17 @@ public class RobotHardware {
 
             this.slideLeftActuator = new WActuatorGroup(
                     () -> intSubscriber(Sensors.SensorType.SLIDE_LEFT_ENC), slideLeft)
-                    .setPIDController(new PIDController(0.008, 0.0, 0.0004))
+                    .setPIDController(new PIDController(0.009, 0.0, 0.0004))
                     .setFeedforward(WActuatorGroup.FeedforwardMode.CONSTANT, 0.0)
 //                .setMotionProfile(0, new ProfileConstraints(1000, 5000, 2000))
-                    .setErrorTolerance(50);
+                    .setErrorTolerance(70);
 
             this.slideRightActuator = new WActuatorGroup(
                     () -> intSubscriber(Sensors.SensorType.SLIDE_RIGHT_ENC), slideRight)
-                    .setPIDController(new PIDController(0.008, 0.0, 0.0004))
+                    .setPIDController(new PIDController(0.009, 0.0, 0.0004))
                     .setFeedforward(WActuatorGroup.FeedforwardMode.CONSTANT, 0.0)
 //                .setMotionProfile(0, new ProfileConstraints(1000, 5000, 2000))
-                    .setErrorTolerance(50);
+                    .setErrorTolerance(70);
 
             this.hSlideActuactor = new WActuatorGroup(
                     () -> intSubscriber(Sensors.SensorType.H_SLIDE_ENC), slideRight)
@@ -173,11 +180,17 @@ public class RobotHardware {
             }
 
 
+            // CONSTANT INITIALIZATION
+
+            tx = 0;
+
+
             arm = new Arm(hardwareMap);
             claw = new Claw(hardwareMap);
             spintake = new Intake(hardwareMap);
             slides = new Slides(hardwareMap);
             color = new SensorColor(alliance);
+            fedhes = new FEDHES(hardwareMap);
 
             slides.reset();
         }
@@ -199,6 +212,7 @@ public class RobotHardware {
         values.put(Sensors.SensorType.H_SLIDE_ENC, hSlideEnc.getPosition());
 
         color.read();
+        // tx = limelight.getLatestResult().getTx();
     }
 
     public void write() {
@@ -222,6 +236,8 @@ public class RobotHardware {
          this.alliance = alliance;
     }
 
+    public int getAlliance() { return alliance; }
+
     public void setColorSensor(SensorColor color) {
          this.color = color;
     }
@@ -229,4 +245,8 @@ public class RobotHardware {
     public DcMotorEx[] getMotors() {
         return new DcMotorEx[] {leftFront, rightFront, leftBack, rightBack};
     }
+
+    public double getTx() { return tx; }
+
+    public void setTx(double tx) { this.tx = tx; }
 }

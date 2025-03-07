@@ -93,12 +93,12 @@ public class Intake extends WSubsystem {
     public void updateState(IntakeState state) {
         switch (state) {
             case DOWN:
-                robot.intake1.setPosition(0.54 + skibAdjust);
-                robot.intake2.setPosition(0.46 - skibAdjust);
+                robot.intake1.setPosition(0.72 + skibAdjust);
+                robot.intake2.setPosition(0.28 - skibAdjust);
                 break;
             case UP:
-                robot.intake1.setPosition(0.10 + skibAdjust);
-                robot.intake2.setPosition(0.90 - skibAdjust);
+                robot.intake1.setPosition(0.05 + skibAdjust);
+                robot.intake2.setPosition(0.95 - skibAdjust);
                 break;
             case MIDDLE:
                 robot.intake1.setPosition(0.39);
@@ -106,6 +106,8 @@ public class Intake extends WSubsystem {
                 break;
         }
     }
+
+
 
     @Override
     public void periodic() {

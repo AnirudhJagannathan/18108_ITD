@@ -32,7 +32,8 @@ public class Arm extends WSubsystem {
         UP,
         DOWN,
         SPEC,
-        SAMPLE
+        SAMPLE,
+        TWIST_SPEC
     }
 
     public Arm(HardwareMap hardwareMap) {
@@ -59,20 +60,23 @@ public class Arm extends WSubsystem {
     public void updateState(ArmState state) {
         switch (state) {
             case DOWN:
-                robot.arm1.setPosition(0.85);
-                robot.arm2.setPosition(0.15);
+                robot.arm1.setPosition(0.84);
+                robot.arm2.setPosition(0.16);
                 break;
             case UP:
                 robot.arm1.setPosition(0.10);
                 robot.arm2.setPosition(0.90);
                 break;
             case SPEC:
-                robot.arm1.setPosition(1);
-                robot.arm2.setPosition(0.90);
+                robot.arm1.setPosition(0.60);
+                robot.arm2.setPosition(0.40);
                 break;
             case SAMPLE:
                 robot.arm1.setPosition(0.14);
                 robot.arm2.setPosition(0.86);
+            case TWIST_SPEC:
+                robot.arm1.setPosition(0.87);
+                robot.arm2.setPosition(0.67);
         }
     }
 

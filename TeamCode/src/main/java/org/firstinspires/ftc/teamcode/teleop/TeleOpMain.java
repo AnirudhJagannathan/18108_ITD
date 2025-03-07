@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
+import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
+import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
+import com.seattlesolvers.solverslib.command.WaitCommand;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -10,14 +13,20 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.commands.LimelightAlign;
 import org.firstinspires.ftc.teamcode.commands.MoveHSlides;
 import org.firstinspires.ftc.teamcode.commands.instant.PowerIntake;
 import org.firstinspires.ftc.teamcode.commands.MoveVSlides;
 import org.firstinspires.ftc.teamcode.commands.instant.RotateArm;
+import org.firstinspires.ftc.teamcode.commands.instant.RotateFEDHES;
 import org.firstinspires.ftc.teamcode.commands.instant.RotateIntake;
+import org.firstinspires.ftc.teamcode.commands.instant.RotateYaw;
+import org.firstinspires.ftc.teamcode.commands.instant.ToggleClaw;
 import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
 import org.firstinspires.ftc.teamcode.subsystems.SensorColor;
 import org.firstinspires.ftc.teamcode.teleopsubs.Arm;
+import org.firstinspires.ftc.teamcode.teleopsubs.Claw;
+import org.firstinspires.ftc.teamcode.teleopsubs.FEDHES;
 import org.firstinspires.ftc.teamcode.teleopsubs.ITDRobot;
 import org.firstinspires.ftc.teamcode.teleopsubs.Intake;
 
@@ -49,11 +58,11 @@ public class TeleOpMain extends CommandOpMode {
     final int SLIDE_LOW = 50;
 
     final int SLIDE_SPEC_START = -930;
-    final int SLIDE_SPEC_END = -200;
+    final int SLIDE_SPEC_END = -700;
 
     final int SLIDE_NEAR_LOW = -100;
 
-    final int SLIDE_HIGH = -1600;
+    final int SLIDE_HIGH = -1650;
 
     double INTAKE_POWER = 1.0;
 
@@ -77,13 +86,113 @@ public class TeleOpMain extends CommandOpMode {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
 
         gp2.getGamepadButton(GamepadKeys.Button.Y)
-                .whenPressed(() -> CommandScheduler.getInstance().schedule(new RotateArm(Arm.ArmState.UP)));
+                .whenPressed(() -> CommandScheduler.getInstance().schedule(
+                        new SequentialCommandGroup(
+                                new ParallelCommandGroup(
+                                        new RotateYaw(Claw.YawState.CENTER),
+                                        new RotateArm(Arm.ArmState.SPEC)
+                                ),
+                                new WaitCommand(250).andThen(
+                                        new ParallelCommandGroup(
+                                                new RotateArm(Arm.ArmState.UP),
+                                                new RotateFEDHES(FEDHES.FEDHESState.BACK)
+                                        )
+                                )
+                        )));
         gp2.getGamepadButton(GamepadKeys.Button.A)
-                .whenPressed(() -> CommandScheduler.getInstance().schedule(new RotateArm(Arm.ArmState.DOWN)));
+                .whenPressed(() -> CommandScheduler.getInstance().schedule(
+                        new SequentialCommandGroup(
+                                new ParallelCommandGroup(
+                                        new RotateYaw(Claw.YawState.CENTER),
+                                        new RotateArm(Arm.ArmState.SPEC)
+                                ),
+                                new WaitCommand(250).andThen(
+                                        new ParallelCommandGroup(
+                                                new RotateArm(Arm.ArmState.DOWN),
+                                                new RotateFEDHES(FEDHES.FEDHESState.DOWN)
+                                        )
+                                )
+                        )));
+        gp2.getGamepadButton(GamepadKeys.Button.B)
+                .whenPressed(() -> CommandScheduler.getInstance().schedule(
+                        new SequentialCommandGroup(
+                                new ParallelCommandGroup(
+                                        new RotateYaw(Claw.YawState.CENTER),
+                                        new RotateArm(Arm.ArmState.SPEC)
+                                ),
+                                new WaitCommand(250).andThen(
+                                        new ParallelCommandGroup(
+                                                new RotateArm(Arm.ArmState.UP),
+                                                new RotateFEDHES(FEDHES.FEDHESState.BACK)
+                                        )
+                                )
+                        )));
 
-        gp2.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-                .whenPressed(() -> CommandScheduler.getInstance().schedule(new PowerIntake(INTAKE_POWER)));
+        gp1.getGamepadButton(GamepadKeys.Button.DPAD_LEFT)
+                .whenPressed(() -> CommandScheduler.getInstance().schedule(
+                        new SequentialCommandGroup(
+                                new ParallelCommandGroup(
+                                        new RotateFEDHES(FEDHES.FEDHESState.FRONT),
+                                        new RotateArm(Arm.ArmState.SPEC)
+                                ),
+                                new WaitCommand(600).andThen(
+                                        new ParallelCommandGroup(
+                                                new RotateArm(Arm.ArmState.TWIST_SPEC),
+                                                new RotateYaw(Claw.YawState.RIGHT)
+                                        )
+                                )
+                        )
+                ));
+
+
+        gp1.getGamepadButton(GamepadKeys.Button.Y)
+                .whenPressed(() -> CommandScheduler.getInstance().schedule(
+                        new SequentialCommandGroup(
+                                new ParallelCommandGroup(
+                                        new RotateYaw(Claw.YawState.CENTER),
+                                        new RotateArm(Arm.ArmState.SPEC)
+                                ),
+                                new WaitCommand(250).andThen(
+                                        new ParallelCommandGroup(
+                                                new RotateArm(Arm.ArmState.UP)
+                                                // new RotateFEDHES(FEDHES.FEDHESState.BACK)
+                                        )
+                                )
+                        )));
+        gp1.getGamepadButton(GamepadKeys.Button.A)
+                .whenPressed(() -> CommandScheduler.getInstance().schedule(
+                        new SequentialCommandGroup(
+                                new ParallelCommandGroup(
+                                        new RotateYaw(Claw.YawState.CENTER),
+                                        new RotateArm(Arm.ArmState.SPEC)
+                                ),
+                                new WaitCommand(250).andThen(
+                                        new ParallelCommandGroup(
+                                                new RotateArm(Arm.ArmState.DOWN)
+                                                // new RotateFEDHES(FEDHES.FEDHESState.DOWN)
+                                        )
+                                )
+                        )));
+        gp1.getGamepadButton(GamepadKeys.Button.B)
+                .whenPressed(() -> CommandScheduler.getInstance().schedule(
+                        new SequentialCommandGroup(
+                                new ParallelCommandGroup(
+                                        new RotateYaw(Claw.YawState.CENTER),
+                                        new RotateArm(Arm.ArmState.SPEC)
+                                ),
+                                new WaitCommand(250).andThen(
+                                        new ParallelCommandGroup(
+                                                new RotateArm(Arm.ArmState.UP)
+                                                // new RotateFEDHES(FEDHES.FEDHESState.BACK)
+                                        )
+                                )
+                        )));
+
+
+
         gp2.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+                .whenPressed(() -> CommandScheduler.getInstance().schedule(new PowerIntake(INTAKE_POWER)));
+        gp2.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                 .whenPressed(() -> CommandScheduler.getInstance().schedule(new PowerIntake(-INTAKE_POWER)));
         gp2.getGamepadButton(GamepadKeys.Button.X)
                 .whenPressed(() -> CommandScheduler.getInstance().schedule(new PowerIntake(0)));
@@ -92,6 +201,9 @@ public class TeleOpMain extends CommandOpMode {
                 .whenPressed(() -> CommandScheduler.getInstance().schedule(new RotateIntake(Intake.IntakeState.UP)));
         gp2.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
                 .whenPressed(() -> CommandScheduler.getInstance().schedule(new RotateIntake(Intake.IntakeState.DOWN)));
+
+        gp1.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
+                .whileHeld(() -> CommandScheduler.getInstance().schedule(new LimelightAlign(hardware, hardware.getAlliance() == 0 ? 1 : 2)));
 
         hardware.read();
 
@@ -133,11 +245,11 @@ public class TeleOpMain extends CommandOpMode {
 
         switch (slideState) {
             case START:
-                if (gamepad1.y || Range.clip(gamepad2.right_stick_y, -1, 1) < -0.25) {
+                if (Range.clip(gamepad2.right_stick_y, -1, 1) < -0.25) {
                     slidePos = SLIDE_HIGH;
                     CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                     slideState = SlideState.EXTEND;
-                } else if (gamepad1.b || gamepad2.right_stick_button) {
+                } else if (gamepad2.right_stick_button) {
                     slidePos = SLIDE_SPEC_START;
                     CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                     slideState = SlideState.EXTEND;
@@ -208,6 +320,7 @@ public class TeleOpMain extends CommandOpMode {
             case SPEC:
                 if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                     slidePos = SLIDE_LOW;
+                    CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                     slideState = SlideState.RETRACT;
                 }
                 break;
@@ -221,31 +334,52 @@ public class TeleOpMain extends CommandOpMode {
 
         }
 
-        if (gamepad2.left_stick_y > 0.25)
-            CommandScheduler.getInstance().schedule(new MoveHSlides(hardware, hardware.hSlideActuactor.getTargetPosition() + HSLIDE_INC));
-        if (gamepad2.left_stick_y < -0.25)
-            CommandScheduler.getInstance().schedule(new MoveHSlides(hardware, hardware.hSlideActuactor.getTargetPosition() - HSLIDE_INC));
+        hardware.slides.moveHSlides(() -> -gamepad2.left_stick_y);
+
+            //CommandScheduler.getInstance().schedule(new MoveHSlides(hardware, hardware.hSlideActuactor.getTargetPosition() - HSLIDE_INC));
+
 
 
         /* if (gamepad2.dpad_up)
             CommandScheduler.getInstance().schedule(new RotateIntake(Intake.IntakeState.UP));
         if (gamepad2.dpad_down)
-            CommandScheduler.getInstance().schedule(new RotateIntake(Intake.IntakeState.DOWN));
+            CommandScheduler.getInstance().sched)ule(new RotateIntake(Intake.IntakeState.DOWN));
          */
 
-        if (gamepad2.y || gamepad2.b) {
-            if (slidePos == SLIDE_HIGH)
+        /* if (gamepad2.y || gamepad2.b) {
+            if (slidePos == SLIDE_HIGH) {
                 CommandScheduler.getInstance().schedule(new RotateArm(Arm.ArmState.SAMPLE));
-            else
-                CommandScheduler.getInstance().schedule(new RotateArm(Arm.ArmState.UP));
+            }
+            else {
+                CommandScheduler.getInstance().schedule(new SequentialCommandGroup(
+                        new RotateArm(Arm.ArmState.UP),
+                        new WaitCommand(400),
+                        new RotateYaw(Claw.YawState.LEFT)
+                        )
+                );
+            }
         }
-        if (gamepad2.a)
+         */
+
+        /*if (gamepad2.a) {
             CommandScheduler.getInstance().schedule(new RotateArm(Arm.ArmState.DOWN));
-        if (gamepad1.dpad_left)
+        }
+        if (gamepad1.dpad_left) {
             CommandScheduler.getInstance().schedule(new RotateArm(Arm.ArmState.SPEC));
+            CommandScheduler.getInstance().schedule(new RotateFEDHES(FEDHES.FEDHESState.FRONT));
+        }*/
+
+        if (gamepad2.right_trigger > 0.25)
+            CommandScheduler.getInstance().schedule(new ToggleClaw(Claw.ClawState.CLOSED));
+        if (gamepad2.left_trigger > 0.25)
+            CommandScheduler.getInstance().schedule(new ToggleClaw(Claw.ClawState.OPEN));
 
         telemetry.addData("slidePos", hardware.slides.getVSlidesPos());
+        telemetry.addData("slidePosH", hardware.slides.getHSlidesPos());
         telemetry.addData("hasReached", hardware.slides.hasReachedV());
+        telemetry.addData("arm1", hardware.arm1.getPosition());
+        telemetry.addData("arm2", hardware.arm2.getPosition());
+        telemetry.addData("tx", hardware.getTx());
         telemetry.update();
 
         CommandScheduler.getInstance().run();

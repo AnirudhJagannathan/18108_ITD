@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierLine;
@@ -10,17 +13,30 @@ import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.commands.LimelightStrafe;
+import org.firstinspires.ftc.teamcode.commands.MoveHSlides;
 import org.firstinspires.ftc.teamcode.commands.MoveVSlides;
 import org.firstinspires.ftc.teamcode.commands.LimelightAlign;
+import org.firstinspires.ftc.teamcode.commands.instant.PowerIntake;
+import org.firstinspires.ftc.teamcode.commands.instant.RotateArm;
 import org.firstinspires.ftc.teamcode.commands.instant.RotateIntake;
 import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
+import org.firstinspires.ftc.teamcode.teleopsubs.Arm;
 import org.firstinspires.ftc.teamcode.teleopsubs.Intake;
 
+import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
+import com.seattlesolvers.solverslib.command.CommandScheduler;
+import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
 import com.seattlesolvers.solverslib.command.RunCommand;
+import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
+import com.seattlesolvers.solverslib.command.WaitCommand;
+import com.seattlesolvers.solverslib.gamepad.GamepadEx;
+import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
+import org.firstinspires.ftc.teamcode.subsystems.SensorColor;
 
 import java.util.ArrayList;
 
@@ -28,9 +44,15 @@ import java.util.ArrayList;
 @Autonomous
 public class BlueLeft extends CommandOpMode {
 
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+
     private Follower follower;
 
+    private SensorColor sensorColor;
+
     private final RobotHardware hardware = RobotHardware.getInstance();
+
+    GamepadEx gp1;
     private Timer pathTimer, actionTimer, opmodeTimer;
 
     /** This is the variable where we store the state of our auto.
@@ -50,7 +72,9 @@ public class BlueLeft extends CommandOpMode {
     private final Pose startPose = new Pose(0, 0, Math.toRadians(0));
 
     /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose = new Pose(15, 12, Math.toRadians(0));
+    private final Pose scorePose = new Pose(15, 2, Math.toRadians(0));
+
+    private final Pose testPose = new Pose(15, -5, Math.toRadians(0));
 
     /** Lowest (First) Sample from the Spike Mark */
     private final Pose pickup1Pose = new Pose(4, -36, Math.toRadians(0));
@@ -77,59 +101,95 @@ public class BlueLeft extends CommandOpMode {
 
     private final ArrayList<PathChain> paths = new ArrayList<>();
     PathChain pathChain = new PathChain();
+    PathChain pathChain2 = new PathChain();
     Path path = new Path(
             new BezierLine(new Point(startPose), new Point(scorePose))
     );
+
+    Path path2 = new Path(
+            new BezierLine(new Point(scorePose), new Point(testPose))
+    );
+
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
     public void buildPaths() {
 
+        RobotHardware.getInstance().limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
+        RobotHardware.getInstance().limelight.start(); // This tells Limelight to start looking!
+
         Constants.setConstants(FConstants.class, LConstants.class);
 
         follower = new Follower(hardwareMap);
 
-        paths.add(
-                // An example path
-                follower.pathBuilder()
-                        .addPath(
-                                path
-                        )
+
+        pathChain = follower.pathBuilder().addPath(path)
                         .setConstantHeadingInterpolation(startPose.getHeading())
-                        .build()
-        );
+                        .build();
+
+        pathChain2 = follower.pathBuilder().addPath(path2)
+                .setConstantHeadingInterpolation(startPose.getHeading())
+                .build();
     }
 
     @Override
     public void initialize() {
         super.reset();
 
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
         hardware.init(hardwareMap);
+
+        hardware.setAlliance(1);
+
+        hardware.limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
+        hardware.limelight.start(); // This tells Limelight to start looking!
+        hardware.limelight.pipelineSwitch(2);
+
+        gp1 = new GamepadEx(gamepad1);
+
+        while (opModeInInit()) {
+            hardware.read();
+            hardware.write();
+            hardware.periodic();
+            hardware.clearBulkCache();
+
+            CommandScheduler.getInstance().schedule(new RotateIntake(Intake.IntakeState.DOWN));
+
+            telemetry.addData("tx", hardware.limelight.getLatestResult().getTx());
+            telemetry.update();
+        }
+
 
         buildPaths();
 
-        schedule(
-                // Updates follower to follow path
-                new RunCommand(() -> follower.update()),
-                new FollowPathCommand(follower, paths.get(0)),
-                new RotateIntake(Intake.IntakeState.DOWN),
-                new MoveVSlides(hardware, -400),
-                new LimelightAlign(2)
-                // new PowerIntake(1)
 
-                /*
-                 new FollowPathCommand(follower, pathChain),
-                new FollowPathCommand(follower, path)
-                 */
+        schedule(
+                new RunCommand(() -> follower.update()),
+                new RunCommand(() -> telemetry.addData("tx", hardware.limelight.getLatestResult().getTx())),
+                new RunCommand(() -> telemetry.update()),
+                new SequentialCommandGroup(
+                        new FollowPathCommand(follower, path),
+                        new RotateIntake(Intake.IntakeState.DOWN)
+                )
         );
 
-
-
-
-        while (opModeInInit()) {
-            telemetry.addData("paths", paths.size());
-            telemetry.update();
-        }
+        schedule(
+                new SequentialCommandGroup(
+                    new FollowPathCommand(follower,
+                        follower.pathBuilder().addPath(
+                            new Path(new BezierLine(
+                               new Point(follower.getPose()),
+                               new Point(new Pose(follower.getPose().getX(),
+                                    follower.getPose().getY() - hardware.limelight.getLatestResult().getTx() / 8,
+                                       Math.toRadians(0)
+                               ))
+                            )))
+                            .setConstantHeadingInterpolation(follower.getPose().getHeading())
+                            .build()
+                    )
+                )
+        );
     }
 
     @Override

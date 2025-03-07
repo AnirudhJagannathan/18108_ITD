@@ -5,15 +5,30 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
 import org.firstinspires.ftc.teamcode.util.wrappers.WSubsystem;
 
 public class Claw extends WSubsystem {
+
+    private final RobotHardware robot = RobotHardware.getInstance();
     private Servo claw;
     private Servo swerve;
     private double position;
     private double position_wrist;
 
-    public Claw(HardwareMap hardwareMap){
+    public enum ClawState {
+        OPEN,
+        CLOSED,
+        WIDE_OPEN
+    }
+
+    public enum YawState {
+        LEFT,
+        RIGHT,
+        CENTER
+    }
+
+    public Claw(HardwareMap hardwareMap) {
         claw = hardwareMap.get(Servo.class, "claw");
         swerve = hardwareMap.get(Servo.class, "swerve");
         position = 0;
@@ -33,6 +48,33 @@ public class Claw extends WSubsystem {
         // opmode.telemetry.addData("Position: ", position);
     }
      */
+
+    public void updateState(ClawState state) {
+        switch (state) {
+            case OPEN:
+                robot.clawServo.setPosition(0.35);
+                break;
+            case CLOSED:
+                robot.clawServo.setPosition(0.2);
+                break;
+            case WIDE_OPEN:
+                robot.clawServo.setPosition(0.53);
+                break;
+        }
+    }
+
+    public void yawUpdateState(YawState state) {
+        switch (state) {
+            case LEFT:
+                robot.yawServo.setPosition(0.45);
+                break;
+            case RIGHT:
+                robot.yawServo.setPosition(0.55);
+                break;
+            case CENTER:
+                robot.yawServo.setPosition(0.5);
+        }
+    }
 
     public void open(){
         claw.setPosition(0.13);

@@ -5,15 +5,24 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
 import org.firstinspires.ftc.teamcode.util.wrappers.WSubsystem;
 
-public class FEDHES extends WSubsystem {
+public class FEDHES extends WSubsystem { //You can see the pain in the TDHES
+
+    private final RobotHardware robot = RobotHardware.getInstance();
     private Servo hypLeft;
     private Servo hypRight;
 
     public FEDHES(HardwareMap hardwareMap) {
         hypLeft = hardwareMap.get(Servo.class, "hypLeft");
         hypRight = hardwareMap.get(Servo.class, "hypRight");
+    }
+
+    public enum FEDHESState {
+        BACK,
+        DOWN,
+        FRONT,
     }
 
     public void rotate(double pos) {
@@ -30,6 +39,23 @@ public class FEDHES extends WSubsystem {
 
         hypLeft.setPosition(pos);
         hypRight.setPosition(1 - pos);
+    }
+
+    public void updateState(FEDHESState state) {
+        switch (state) {
+            case DOWN:
+                robot.hypLeft.setPosition(0.27);
+                robot.hypRight.setPosition(0.73);
+                break;
+            case BACK:
+                robot.hypLeft.setPosition(0.03);
+                robot.hypRight.setPosition(0.97);
+                break;
+            case FRONT:
+                robot.hypLeft.setPosition(1);
+                robot.hypRight.setPosition(0);
+                break;
+        }
     }
 
     @Override
