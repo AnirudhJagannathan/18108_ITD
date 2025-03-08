@@ -44,12 +44,12 @@ public class FEDHES extends WSubsystem { //You can see the pain in the TDHES
     public void updateState(FEDHESState state) {
         switch (state) {
             case DOWN:
-                robot.hypLeft.setPosition(0.27);
-                robot.hypRight.setPosition(0.73);
+                robot.hypLeft.setPosition(0.35);
+                robot.hypRight.setPosition(0.65);
                 break;
             case BACK:
-                robot.hypLeft.setPosition(0.03);
-                robot.hypRight.setPosition(0.97);
+                robot.hypLeft.setPosition(0);
+                robot.hypRight.setPosition(1);
                 break;
             case FRONT:
                 robot.hypLeft.setPosition(1);

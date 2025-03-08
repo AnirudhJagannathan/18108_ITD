@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.auto;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.SleepAction;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierLine;
@@ -13,30 +12,19 @@ import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.commands.LimelightStrafe;
-import org.firstinspires.ftc.teamcode.commands.MoveHSlides;
-import org.firstinspires.ftc.teamcode.commands.MoveVSlides;
-import org.firstinspires.ftc.teamcode.commands.LimelightAlign;
-import org.firstinspires.ftc.teamcode.commands.instant.PowerIntake;
-import org.firstinspires.ftc.teamcode.commands.instant.RotateArm;
 import org.firstinspires.ftc.teamcode.commands.instant.RotateIntake;
 import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
-import org.firstinspires.ftc.teamcode.teleopsubs.Arm;
 import org.firstinspires.ftc.teamcode.teleopsubs.Intake;
 
-import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
-import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
 import com.seattlesolvers.solverslib.command.RunCommand;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
-import com.seattlesolvers.solverslib.command.WaitCommand;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
-import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
-import org.firstinspires.ftc.teamcode.subsystems.SensorColor;
+import org.firstinspires.ftc.teamcode.teleopsubs.SensorColor;
 
 import java.util.ArrayList;
 
@@ -158,42 +146,41 @@ public class BlueLeft extends CommandOpMode {
 
             telemetry.addData("tx", hardware.limelight.getLatestResult().getTx());
             telemetry.update();
+            buildPaths();
         }
+    }
 
-
-        buildPaths();
-
+    @Override
+    public void run() {
 
         schedule(
                 new RunCommand(() -> follower.update()),
                 new RunCommand(() -> telemetry.addData("tx", hardware.limelight.getLatestResult().getTx())),
                 new RunCommand(() -> telemetry.update()),
                 new SequentialCommandGroup(
-                        new FollowPathCommand(follower, path),
+                        new FollowPathCommand(follower, pathChain),
                         new RotateIntake(Intake.IntakeState.DOWN)
                 )
         );
 
         schedule(
                 new SequentialCommandGroup(
-                    new FollowPathCommand(follower,
-                        follower.pathBuilder().addPath(
-                            new Path(new BezierLine(
-                               new Point(follower.getPose()),
-                               new Point(new Pose(follower.getPose().getX(),
-                                    follower.getPose().getY() - hardware.limelight.getLatestResult().getTx() / 8,
-                                       Math.toRadians(0)
-                               ))
-                            )))
-                            .setConstantHeadingInterpolation(follower.getPose().getHeading())
-                            .build()
-                    )
+                        new FollowPathCommand(follower,
+                                follower.pathBuilder().addPath(
+                                                new Path(new BezierLine(
+                                                        new Point(scorePose),
+                                                        new Point(new Pose(scorePose.getX(),
+                                                                scorePose.getY() - (hardware.limelight.getLatestResult().getTx()/8),
+                                                                Math.toRadians(0)
+                                                        ))
+                                                )))
+                                        .setConstantHeadingInterpolation(scorePose.getHeading())
+                                        .build()
+                        )
                 )
         );
-    }
 
-    @Override
-    public void run() {
         super.run();
     }
+
 }

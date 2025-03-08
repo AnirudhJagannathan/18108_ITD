@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.seattlesolvers.solverslib.controller.PIDController;
-import com.seattlesolvers.solverslib.hardware.motors.Motor;
+import com.seattlesolvers.solverslib.hardware.SimpleServo;
 import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -15,7 +14,8 @@ import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.configuration.LynxConstants;
 
-import org.firstinspires.ftc.teamcode.subsystems.SensorColor;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.teleopsubs.SensorColor;
 import org.firstinspires.ftc.teamcode.teleopsubs.Arm;
 import org.firstinspires.ftc.teamcode.teleopsubs.Claw;
 import org.firstinspires.ftc.teamcode.teleopsubs.FEDHES;
@@ -55,6 +55,8 @@ public class RobotHardware {
 
         public Servo hypLeft;
         public Servo hypRight;
+
+        public SimpleServo solversArm1, solversArm2;
         public Servo clawServo;
         public Servo yawServo;
 
@@ -124,6 +126,9 @@ public class RobotHardware {
             hypLeft = new WServo(hardwareMap.get(Servo.class, "hypLeft"));
             hypRight = new WServo(hardwareMap.get(Servo.class, "hypRight"));
 
+            solversArm1 = new SimpleServo(hardwareMap, "arm", 0, 330, AngleUnit.DEGREES);
+            solversArm2 = new SimpleServo(hardwareMap, "arm2", 0, 330, AngleUnit.DEGREES);
+
             limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
             colorSensor = hardwareMap.get(NormalizedColorSensor.class, "colorSensor");
@@ -152,21 +157,23 @@ public class RobotHardware {
 
             this.slideLeftActuator = new WActuatorGroup(
                     () -> intSubscriber(Sensors.SensorType.SLIDE_LEFT_ENC), slideLeft)
-                    .setPIDController(new PIDController(0.009, 0.0, 0.0004))
+                    .setPIDController(new PIDController(0.006 , 0.0, 0.0004))
                     .setFeedforward(WActuatorGroup.FeedforwardMode.CONSTANT, 0.0)
 //                .setMotionProfile(0, new ProfileConstraints(1000, 5000, 2000))
-                    .setErrorTolerance(70);
+                    .setTargetPositionOffset(-50)
+                    .setErrorTolerance(85);
 
             this.slideRightActuator = new WActuatorGroup(
                     () -> intSubscriber(Sensors.SensorType.SLIDE_RIGHT_ENC), slideRight)
-                    .setPIDController(new PIDController(0.009, 0.0, 0.0004))
+                    .setPIDController(new PIDController(0.006, 0.0, 0.0004))
                     .setFeedforward(WActuatorGroup.FeedforwardMode.CONSTANT, 0.0)
 //                .setMotionProfile(0, new ProfileConstraints(1000, 5000, 2000))
-                    .setErrorTolerance(70);
+                    .setTargetPositionOffset(-50)
+                    .setErrorTolerance(85);
 
             this.hSlideActuactor = new WActuatorGroup(
-                    () -> intSubscriber(Sensors.SensorType.H_SLIDE_ENC), slideRight)
-                    .setPIDController(new PIDController(0.008, 0.0, 0.0004))
+                    () -> intSubscriber(Sensors.SensorType.H_SLIDE_ENC), hSlides)
+                    .setPIDController(new PIDController(0.006, 0.0, 0.0004))
                     .setFeedforward(WActuatorGroup.FeedforwardMode.CONSTANT, 0.0)
 //                .setMotionProfile(0, new ProfileConstraints(1000, 5000, 2000))
                     .setErrorTolerance(50);

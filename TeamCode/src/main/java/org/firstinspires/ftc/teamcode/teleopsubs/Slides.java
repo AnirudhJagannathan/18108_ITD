@@ -74,7 +74,7 @@ public class Slides extends WSubsystem {
 
     public void moveHSlides(DoubleSupplier joystick) {
         double power = Range.clip(joystick.getAsDouble(), -1, 1);
-        if (checkLimitsHSlide(power) && (getHSlidesPos() > -200 && power > 0)) {
+        if (checkLimitsHSlide(power) && (getHSlidesPos() < 200 && power < 0)) {
             hSlides.setPower(0.7 * power);
         }
         else if (checkLimitsHSlide(power)) {
@@ -155,7 +155,7 @@ public class Slides extends WSubsystem {
     }
 
     public boolean checkLimitsHSlide(double power) {
-        return ((hSlides.getCurrentPosition() > -1550 || power > 0) && (hSlides.getCurrentPosition() < 50 || power < 0));
+        return ((hSlides.getCurrentPosition() < 1550 || power < 0) && (hSlides.getCurrentPosition() > 50 || power > 0));
     }
 
     public int getVSlidesPos() {

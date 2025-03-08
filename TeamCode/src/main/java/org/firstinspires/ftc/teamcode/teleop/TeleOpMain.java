@@ -14,7 +14,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.commands.LimelightAlign;
-import org.firstinspires.ftc.teamcode.commands.MoveHSlides;
 import org.firstinspires.ftc.teamcode.commands.instant.PowerIntake;
 import org.firstinspires.ftc.teamcode.commands.MoveVSlides;
 import org.firstinspires.ftc.teamcode.commands.instant.RotateArm;
@@ -23,7 +22,7 @@ import org.firstinspires.ftc.teamcode.commands.instant.RotateIntake;
 import org.firstinspires.ftc.teamcode.commands.instant.RotateYaw;
 import org.firstinspires.ftc.teamcode.commands.instant.ToggleClaw;
 import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
-import org.firstinspires.ftc.teamcode.subsystems.SensorColor;
+import org.firstinspires.ftc.teamcode.teleopsubs.SensorColor;
 import org.firstinspires.ftc.teamcode.teleopsubs.Arm;
 import org.firstinspires.ftc.teamcode.teleopsubs.Claw;
 import org.firstinspires.ftc.teamcode.teleopsubs.FEDHES;
@@ -55,10 +54,10 @@ public class TeleOpMain extends CommandOpMode {
     public ElapsedTime slideTimer = new ElapsedTime();
 
     final int SLIDE_BASE = 0;
-    final int SLIDE_LOW = 50;
+    final int SLIDE_LOW = 25;
 
-    final int SLIDE_SPEC_START = -930;
-    final int SLIDE_SPEC_END = -700;
+    final int SLIDE_SPEC_START = -820;
+    final int SLIDE_SPEC_END = -580;
 
     final int SLIDE_NEAR_LOW = -100;
 
@@ -268,6 +267,7 @@ public class TeleOpMain extends CommandOpMode {
                     if (slidePos == SLIDE_HIGH) {
                         if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                             slidePos = SLIDE_LOW;
+                            hardware.slideLeftActuator.setErrorTolerance(150);
                             CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                             slideState = SlideState.RETRACT;
                         }
@@ -292,6 +292,7 @@ public class TeleOpMain extends CommandOpMode {
                         }
                         if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                             slidePos = SLIDE_LOW;
+                            hardware.slideLeftActuator.setErrorTolerance(150);
                             CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                             slideState = SlideState.RETRACT;
                         }
@@ -307,8 +308,9 @@ public class TeleOpMain extends CommandOpMode {
                         }
                         if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                             slidePos = SLIDE_LOW;
-                            slideState = SlideState.RETRACT;
+                            hardware.slideLeftActuator.setErrorTolerance(150);
                             CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
+                            slideState = SlideState.RETRACT;
                         }
                         if (gamepad2.right_stick_button) {
                             slidePos = SLIDE_SPEC_START;
@@ -320,12 +322,14 @@ public class TeleOpMain extends CommandOpMode {
             case SPEC:
                 if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                     slidePos = SLIDE_LOW;
+                    hardware.slideLeftActuator.setErrorTolerance(150);
                     CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                     slideState = SlideState.RETRACT;
                 }
                 break;
             case RETRACT:
                 if (Math.abs(hardware.slides.getVSlidesPos() - SLIDE_LOW) < 150) {
+                    hardware.slideLeftActuator.setErrorTolerance(75);
                     slideState = SlideState.START;
                 }
                 break;

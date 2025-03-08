@@ -8,5 +8,6 @@ import org.firstinspires.ftc.teamcode.teleopsubs.Arm;
 public class RotateArm extends InstantCommand {
     public RotateArm(Arm.ArmState state) {
         super(() -> RobotHardware.getInstance().arm.updateState(state));
+        //super(() -> RobotHardware.getInstance().arm.bludArmMovement(state));
     }
 }

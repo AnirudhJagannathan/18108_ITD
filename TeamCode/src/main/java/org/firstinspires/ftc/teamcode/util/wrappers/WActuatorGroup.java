@@ -51,6 +51,8 @@ public class WActuatorGroup {
     private double offset = 0.0;
 
     private boolean reached = false;
+
+    private boolean reachedOffset = false;
     private boolean floating = false;
 
     private FeedforwardMode mode = FeedforwardMode.NONE;
@@ -148,6 +150,7 @@ public class WActuatorGroup {
         }
 
         this.reached = Math.abs((targetPosition + targetPositionOffset) - position) < tolerance;
+        this.reachedOffset = Math.abs(targetPosition - position) < tolerance;
     }
 
     /**
@@ -160,7 +163,7 @@ public class WActuatorGroup {
             for (HardwareDevice device : devices.values()) {
                 if (device instanceof DcMotorEx) {
                     double correction = 1.0;
-                    if (voltage != null) correction = 13.0 / voltage.getAsDouble();
+                    if (voltage != null) correction = 12.0 / voltage.getAsDouble();
                     if (!floating) ((DcMotorEx) device).setPower(power * correction);
                     else ((DcMotorEx) device).setPower(0);
                     pPower = power;
@@ -256,6 +259,11 @@ public class WActuatorGroup {
         return this;
     }
 
+    public WActuatorGroup setTargetPositionOffset(double offset) {
+        this.targetPositionOffset = offset;
+        return this;
+    }
+
     public void updateConstraints(ProfileConstraints constraints) {
         this.constraints = constraints;
 //        setMotionProfile(new AsymmetricMotionProfile(position, targetPosition, constraints));
@@ -335,6 +343,6 @@ public class WActuatorGroup {
      * @return
      */
     public boolean hasReached() {
-        return this.reached;
+        return this.reachedOffset;
     }
 }

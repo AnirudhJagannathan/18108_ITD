@@ -52,10 +52,10 @@ public class Claw extends WSubsystem {
     public void updateState(ClawState state) {
         switch (state) {
             case OPEN:
-                robot.clawServo.setPosition(0.35);
+                robot.clawServo.setPosition(0.25);
                 break;
             case CLOSED:
-                robot.clawServo.setPosition(0.2);
+                robot.clawServo.setPosition(0.1);
                 break;
             case WIDE_OPEN:
                 robot.clawServo.setPosition(0.53);
@@ -66,10 +66,10 @@ public class Claw extends WSubsystem {
     public void yawUpdateState(YawState state) {
         switch (state) {
             case LEFT:
-                robot.yawServo.setPosition(0.45);
+                robot.yawServo.setPosition(0.40);
                 break;
             case RIGHT:
-                robot.yawServo.setPosition(0.55);
+                robot.yawServo.setPosition(0.60);
                 break;
             case CENTER:
                 robot.yawServo.setPosition(0.5);

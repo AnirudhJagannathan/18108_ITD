@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.seattlesolvers.solverslib.hardware.SimpleServo;
 
 import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
 import org.firstinspires.ftc.teamcode.universal.PIDController;
@@ -18,6 +19,8 @@ public class Arm extends WSubsystem {
     private final RobotHardware robot;
     private Servo arm1;
     private Servo arm2;
+
+    private SimpleServo solversArm1, solversArm2;
     private double pos1;
     private double pos2;
 
@@ -64,19 +67,42 @@ public class Arm extends WSubsystem {
                 robot.arm2.setPosition(0.16);
                 break;
             case UP:
-                robot.arm1.setPosition(0.10);
-                robot.arm2.setPosition(0.90);
+                robot.arm1.setPosition(0.08);
+                robot.arm2.setPosition(0.92);
                 break;
             case SPEC:
                 robot.arm1.setPosition(0.60);
                 robot.arm2.setPosition(0.40);
                 break;
             case SAMPLE:
-                robot.arm1.setPosition(0.14);
-                robot.arm2.setPosition(0.86);
+                robot.arm1.setPosition(0.12);
+                robot.arm2.setPosition(0.88);
             case TWIST_SPEC:
                 robot.arm1.setPosition(0.87);
                 robot.arm2.setPosition(0.67);
+        }
+    }
+
+    public void bludArmMovement(ArmState state){
+        switch (state) {
+            case DOWN:
+                robot.solversArm1.turnToAngle(30);
+                robot.solversArm2.turnToAngle(255);
+                break;
+            case UP:
+                robot.solversArm1.turnToAngle(285);
+                robot.solversArm2.turnToAngle(0);
+                break;
+            case SPEC:
+                robot.solversArm1.turnToAngle(105);
+                robot.solversArm2.turnToAngle(180);
+                break;
+            case SAMPLE:
+                robot.solversArm1.turnToAngle(255);
+                robot.solversArm2.turnToAngle(30);
+            case TWIST_SPEC:
+                robot.solversArm1.turnToAngle(120);
+                robot.solversArm2.turnToAngle(165);
         }
     }
 
