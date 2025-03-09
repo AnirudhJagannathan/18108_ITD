@@ -33,6 +33,7 @@ public class Slides extends WSubsystem {
     private final int TOLERANCE = 75;
 
     private double pos = 0;
+    private boolean auto = false;
 
 
 
@@ -83,6 +84,7 @@ public class Slides extends WSubsystem {
         else {
             hSlides.setPower(0);
         }
+
     }
 
     public Action moveVSlidesHeight(int height) {
@@ -183,25 +185,29 @@ public class Slides extends WSubsystem {
     public void periodic() {
         robot.slideLeftActuator.setCurrentPosition(vSlidesA.getCurrentPosition());
         robot.slideRightActuator.setCurrentPosition(vSlidesB.getCurrentPosition());
-        robot.hSlideActuactor.setCurrentPosition(hSlides.getCurrentPosition());
+        if (auto)
+            robot.hSlideActuactor.setCurrentPosition(hSlides.getCurrentPosition());
 
         robot.slideLeftActuator.periodic();
         robot.slideRightActuator.periodic();
-        robot.hSlideActuactor.periodic();
+        if (auto)
+            robot.hSlideActuactor.periodic();
     }
 
     @Override
     public void read() {
         robot.slideLeftActuator.read();
         robot.slideRightActuator.read();
-        robot.hSlideActuactor.read();
+        if (auto)
+            robot.hSlideActuactor.read();
     }
 
     @Override
     public void write() {
         robot.slideLeftActuator.write();
         robot.slideRightActuator.write();
-        robot.hSlideActuactor.write();
+        if (auto)
+            robot.hSlideActuactor.write();
     }
 
     public boolean hasReachedV() {
@@ -210,5 +216,14 @@ public class Slides extends WSubsystem {
 
     public boolean hasReachedH() {
         return robot.hSlideActuactor.hasReached();
+    }
+
+    public void setAuto(boolean auto) {
+        this.auto = auto;
+    }
+
+    public void setOffset(double offset) {
+        robot.slideLeftActuator.setOffset(offset);
+        robot.slideRightActuator.setOffset(offset);
     }
 }

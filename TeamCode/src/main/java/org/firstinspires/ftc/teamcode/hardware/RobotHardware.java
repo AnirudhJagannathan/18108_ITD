@@ -160,7 +160,7 @@ public class RobotHardware {
                     .setPIDController(new PIDController(0.006 , 0.0, 0.0004))
                     .setFeedforward(WActuatorGroup.FeedforwardMode.CONSTANT, 0.0)
 //                .setMotionProfile(0, new ProfileConstraints(1000, 5000, 2000))
-                    .setTargetPositionOffset(-50)
+                    .setTargetPositionOffset(-75)
                     .setErrorTolerance(85);
 
             this.slideRightActuator = new WActuatorGroup(
@@ -168,7 +168,7 @@ public class RobotHardware {
                     .setPIDController(new PIDController(0.006, 0.0, 0.0004))
                     .setFeedforward(WActuatorGroup.FeedforwardMode.CONSTANT, 0.0)
 //                .setMotionProfile(0, new ProfileConstraints(1000, 5000, 2000))
-                    .setTargetPositionOffset(-50)
+                    .setTargetPositionOffset(-75)
                     .setErrorTolerance(85);
 
             this.hSlideActuactor = new WActuatorGroup(

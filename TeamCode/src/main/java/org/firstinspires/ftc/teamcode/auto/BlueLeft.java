@@ -152,7 +152,6 @@ public class BlueLeft extends CommandOpMode {
 
     @Override
     public void run() {
-
         schedule(
                 new RunCommand(() -> follower.update()),
                 new RunCommand(() -> telemetry.addData("tx", hardware.limelight.getLatestResult().getTx())),

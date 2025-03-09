@@ -14,6 +14,8 @@ public class FEDHES extends WSubsystem { //You can see the pain in the TDHES
     private Servo hypLeft;
     private Servo hypRight;
 
+    private FEDHESState state;
+
     public FEDHES(HardwareMap hardwareMap) {
         hypLeft = hardwareMap.get(Servo.class, "hypLeft");
         hypRight = hardwareMap.get(Servo.class, "hypRight");
@@ -46,16 +48,23 @@ public class FEDHES extends WSubsystem { //You can see the pain in the TDHES
             case DOWN:
                 robot.hypLeft.setPosition(0.35);
                 robot.hypRight.setPosition(0.65);
+                this.state = state;
                 break;
             case BACK:
                 robot.hypLeft.setPosition(0);
                 robot.hypRight.setPosition(1);
+                this.state = state;
                 break;
             case FRONT:
                 robot.hypLeft.setPosition(1);
                 robot.hypRight.setPosition(0);
+                this.state = state;
                 break;
         }
+    }
+
+    public FEDHESState getState() {
+        return state;
     }
 
     @Override

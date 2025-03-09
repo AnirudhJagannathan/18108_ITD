@@ -54,10 +54,10 @@ public class TeleOpMain extends CommandOpMode {
     public ElapsedTime slideTimer = new ElapsedTime();
 
     final int SLIDE_BASE = 0;
-    final int SLIDE_LOW = 25;
+    final int SLIDE_LOW = 50;
 
     final int SLIDE_SPEC_START = -820;
-    final int SLIDE_SPEC_END = -580;
+    final int SLIDE_SPEC_END = -450;
 
     final int SLIDE_NEAR_LOW = -100;
 
@@ -67,7 +67,7 @@ public class TeleOpMain extends CommandOpMode {
 
     final int HSLIDE_INC = 10;
 
-    int slidePos = 0;
+    int slidePos = SLIDE_BASE;
 
     public void initialize() {
         CommandScheduler.getInstance().reset();
@@ -88,24 +88,27 @@ public class TeleOpMain extends CommandOpMode {
                 .whenPressed(() -> CommandScheduler.getInstance().schedule(
                         new SequentialCommandGroup(
                                 new ParallelCommandGroup(
+                                        new ToggleClaw(Claw.ClawState.CLOSED),
                                         new RotateYaw(Claw.YawState.CENTER),
                                         new RotateArm(Arm.ArmState.SPEC)
                                 ),
-                                new WaitCommand(250).andThen(
+                                new WaitCommand(200).andThen(
                                         new ParallelCommandGroup(
                                                 new RotateArm(Arm.ArmState.UP),
                                                 new RotateFEDHES(FEDHES.FEDHESState.BACK)
                                         )
                                 )
                         )));
+
         gp2.getGamepadButton(GamepadKeys.Button.A)
                 .whenPressed(() -> CommandScheduler.getInstance().schedule(
                         new SequentialCommandGroup(
                                 new ParallelCommandGroup(
+                                        new ToggleClaw(Claw.ClawState.CLOSED),
                                         new RotateYaw(Claw.YawState.CENTER),
                                         new RotateArm(Arm.ArmState.SPEC)
                                 ),
-                                new WaitCommand(250).andThen(
+                                new WaitCommand(200).andThen(
                                         new ParallelCommandGroup(
                                                 new RotateArm(Arm.ArmState.DOWN),
                                                 new RotateFEDHES(FEDHES.FEDHESState.DOWN)
@@ -116,31 +119,36 @@ public class TeleOpMain extends CommandOpMode {
                 .whenPressed(() -> CommandScheduler.getInstance().schedule(
                         new SequentialCommandGroup(
                                 new ParallelCommandGroup(
+                                        new ToggleClaw(Claw.ClawState.CLOSED),
                                         new RotateYaw(Claw.YawState.CENTER),
                                         new RotateArm(Arm.ArmState.SPEC)
                                 ),
-                                new WaitCommand(250).andThen(
+                                new WaitCommand(200).andThen(
                                         new ParallelCommandGroup(
                                                 new RotateArm(Arm.ArmState.UP),
                                                 new RotateFEDHES(FEDHES.FEDHESState.BACK)
                                         )
+                                ),
+                                new WaitCommand(hardware.fedhes.getState() == FEDHES.FEDHESState.FRONT ? 800 : 250).andThen(
+                                        new RotateArm(Arm.ArmState.FINALUP)
                                 )
                         )));
 
-        gp1.getGamepadButton(GamepadKeys.Button.DPAD_LEFT)
-                .whenPressed(() -> CommandScheduler.getInstance().schedule(
+        gp2.getGamepadButton(GamepadKeys.Button.DPAD_LEFT)
+                .whenPressed(() -> CommandScheduler.getInstance().schedule(slidePos != SLIDE_LOW ?
                         new SequentialCommandGroup(
                                 new ParallelCommandGroup(
+                                        new RotateYaw(Claw.YawState.CENTER),
                                         new RotateFEDHES(FEDHES.FEDHESState.FRONT),
                                         new RotateArm(Arm.ArmState.SPEC)
                                 ),
-                                new WaitCommand(600).andThen(
+                                new WaitCommand(hardware.fedhes.getState() == FEDHES.FEDHESState.DOWN ? 600 : 850).andThen(
                                         new ParallelCommandGroup(
                                                 new RotateArm(Arm.ArmState.TWIST_SPEC),
-                                                new RotateYaw(Claw.YawState.RIGHT)
+                                                new RotateYaw(Claw.YawState.CENTER)
                                         )
                                 )
-                        )
+                        ) : new SequentialCommandGroup()
                 ));
 
 
@@ -187,8 +195,6 @@ public class TeleOpMain extends CommandOpMode {
                                 )
                         )));
 
-
-
         gp2.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
                 .whenPressed(() -> CommandScheduler.getInstance().schedule(new PowerIntake(INTAKE_POWER)));
         gp2.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
@@ -216,6 +222,7 @@ public class TeleOpMain extends CommandOpMode {
                 telemetry.addData("Limelight Sample Color", "Blue");
             }
             telemetry.update();
+            hardware.slides.setOffset(0);
         }
     }
 
@@ -240,16 +247,19 @@ public class TeleOpMain extends CommandOpMode {
                 () -> gamepad1.left_stick_y,
                 () -> gamepad1.right_stick_x,
                 () -> gamepad1.left_stick_x
-        );*/
+        );
+        */
 
         switch (slideState) {
             case START:
                 if (Range.clip(gamepad2.right_stick_y, -1, 1) < -0.25) {
                     slidePos = SLIDE_HIGH;
+                    hardware.slides.setOffset(75);
                     CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                     slideState = SlideState.EXTEND;
                 } else if (gamepad2.right_stick_button) {
                     slidePos = SLIDE_SPEC_START;
+                    hardware.slides.setOffset(75);
                     CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                     slideState = SlideState.EXTEND;
                 } else if (gamepad2.left_stick_button) {
@@ -267,7 +277,9 @@ public class TeleOpMain extends CommandOpMode {
                     if (slidePos == SLIDE_HIGH) {
                         if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                             slidePos = SLIDE_LOW;
+                            hardware.slides.setOffset(25);
                             hardware.slideLeftActuator.setErrorTolerance(150);
+                            hardware.slideRightActuator.setErrorTolerance(150);
                             CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                             slideState = SlideState.RETRACT;
                         }
@@ -292,7 +304,9 @@ public class TeleOpMain extends CommandOpMode {
                         }
                         if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                             slidePos = SLIDE_LOW;
+                            hardware.slides.setOffset(25);
                             hardware.slideLeftActuator.setErrorTolerance(150);
+                            hardware.slideRightActuator.setErrorTolerance(150);
                             CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                             slideState = SlideState.RETRACT;
                         }
@@ -308,7 +322,9 @@ public class TeleOpMain extends CommandOpMode {
                         }
                         if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                             slidePos = SLIDE_LOW;
+                            hardware.slides.setOffset(25);
                             hardware.slideLeftActuator.setErrorTolerance(150);
+                            hardware.slideRightActuator.setErrorTolerance(150);
                             CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                             slideState = SlideState.RETRACT;
                         }
@@ -322,13 +338,15 @@ public class TeleOpMain extends CommandOpMode {
             case SPEC:
                 if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                     slidePos = SLIDE_LOW;
+                    hardware.slides.setOffset(25);
                     hardware.slideLeftActuator.setErrorTolerance(150);
+                    hardware.slideRightActuator.setErrorTolerance(150);
                     CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                     slideState = SlideState.RETRACT;
                 }
                 break;
             case RETRACT:
-                if (Math.abs(hardware.slides.getVSlidesPos() - SLIDE_LOW) < 150) {
+                if (Math.abs(hardware.slides.getVSlidesPos() - SLIDE_LOW) < 75) {
                     hardware.slideLeftActuator.setErrorTolerance(75);
                     slideState = SlideState.START;
                 }
@@ -375,8 +393,14 @@ public class TeleOpMain extends CommandOpMode {
 
         if (gamepad2.right_trigger > 0.25)
             CommandScheduler.getInstance().schedule(new ToggleClaw(Claw.ClawState.CLOSED));
-        if (gamepad2.left_trigger > 0.25)
-            CommandScheduler.getInstance().schedule(new ToggleClaw(Claw.ClawState.OPEN));
+        if (gamepad2.left_trigger > 0.25) {
+            if (hardware.fedhes.getState() == FEDHES.FEDHESState.BACK || hardware.fedhes.getState() == FEDHES.FEDHESState.FRONT) {
+                CommandScheduler.getInstance().schedule(new ToggleClaw(Claw.ClawState.WIDE_OPEN));
+            }
+            else {
+                CommandScheduler.getInstance().schedule(new ToggleClaw(Claw.ClawState.OPEN));
+            }
+        }
 
         telemetry.addData("slidePos", hardware.slides.getVSlidesPos());
         telemetry.addData("slidePosH", hardware.slides.getHSlidesPos());

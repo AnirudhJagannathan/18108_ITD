@@ -58,7 +58,7 @@ public class Claw extends WSubsystem {
                 robot.clawServo.setPosition(0.1);
                 break;
             case WIDE_OPEN:
-                robot.clawServo.setPosition(0.53);
+                robot.clawServo.setPosition(0.30);
                 break;
         }
     }

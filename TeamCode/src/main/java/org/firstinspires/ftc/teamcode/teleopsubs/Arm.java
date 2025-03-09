@@ -33,6 +33,8 @@ public class Arm extends WSubsystem {
 
     public enum ArmState {
         UP,
+
+        FINALUP,
         DOWN,
         SPEC,
         SAMPLE,
@@ -67,19 +69,25 @@ public class Arm extends WSubsystem {
                 robot.arm2.setPosition(0.16);
                 break;
             case UP:
-                robot.arm1.setPosition(0.08);
-                robot.arm2.setPosition(0.92);
+                robot.arm1.setPosition(0.06);
+                robot.arm2.setPosition(0.94);
+                break;
+            case FINALUP:
+                robot.arm1.setPosition(0.03);
+                robot.arm2.setPosition(0.97);
                 break;
             case SPEC:
-                robot.arm1.setPosition(0.60);
-                robot.arm2.setPosition(0.40);
+                robot.arm1.setPosition(0.58);
+                robot.arm2.setPosition(0.42);
                 break;
             case SAMPLE:
                 robot.arm1.setPosition(0.12);
                 robot.arm2.setPosition(0.88);
+                break;
             case TWIST_SPEC:
                 robot.arm1.setPosition(0.87);
                 robot.arm2.setPosition(0.67);
+                break;
         }
     }
 
