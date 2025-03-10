@@ -223,7 +223,16 @@ public class Slides extends WSubsystem {
     }
 
     public void setOffset(double offset) {
-        robot.slideLeftActuator.setOffset(offset);
-        robot.slideRightActuator.setOffset(offset);
+        robot.slideLeftActuator.setTargetPositionOffset(offset);
+        robot.slideRightActuator.setTargetPositionOffset(offset);
+    }
+
+    public void setTargetPosition(int targetPosition) {
+        robot.slideLeftActuator.setTargetPosition(targetPosition);
+        robot.slideRightActuator.setTargetPosition(targetPosition);
+    }
+
+    public double[] getOffset() {
+        return new double[]{robot.slideLeftActuator.getOffset(), robot.slideRightActuator.getOffset()};
     }
 }

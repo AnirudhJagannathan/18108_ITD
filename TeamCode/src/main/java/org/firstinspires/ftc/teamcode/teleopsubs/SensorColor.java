@@ -27,13 +27,15 @@ public class SensorColor extends WSubsystem {
 
     @Override
     public void periodic() {
-        if (robot.intake1.getPosition() > 0.30 || robot.hSlides.getCurrentPosition() > 250 || robot.intake.getPower() < 0) {
-            if (hsvValues[0] > 12 && hsvValues[0] < 35 && eagleBLUD == 1) {
-                robot.intake.setPower(0);
-            } else if (hsvValues[0] > 210 && eagleBLUD == 0) {
-                robot.intake.setPower(0);
-            } else if (hsvValues[0] > 70 && hsvValues[0] < 90) {
-                robot.intake.setPower(0);
+        if (!robot.outtaking) {
+            if (robot.intake1.getPosition() > 0.30 || robot.hSlides.getCurrentPosition() > 250 || robot.intake.getPower() < 0) {
+                if (hsvValues[0] > 0 && hsvValues[0] < 55 && eagleBLUD == 1) {
+                    robot.intake.setPower(0);
+                } else if (hsvValues[0] > 180 && eagleBLUD == 0) {
+                    robot.intake.setPower(0);
+                } else if (hsvValues[0] > 60 && hsvValues[0] < 120) {
+                    robot.intake.setPower(0);
+                }
             }
         }
     }

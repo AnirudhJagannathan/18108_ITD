@@ -1,27 +1,36 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import com.acmerobotics.dashboard.FtcDashboard;
+import android.graphics.Color;
+
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
-import com.qualcomm.robotcore.hardware.SwitchableLight;
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import com.acmerobotics.dashboard.FtcDashboard;
 
 import org.firstinspires.ftc.robotcore.external.navigation.VoltageUnit;
-import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
-import org.firstinspires.ftc.teamcode.teleopsubs.Arm;
-import org.firstinspires.ftc.teamcode.teleopsubs.Claw;
-import org.firstinspires.ftc.teamcode.teleopsubs.FEDHES;
-import org.firstinspires.ftc.teamcode.teleopsubs.ITDRobot;
-import org.firstinspires.ftc.teamcode.teleopsubs.Intake;
-import org.firstinspires.ftc.teamcode.teleopsubs.Slides;
+import org.firstinspires.ftc.teamcode.subsystems.Arm;
+import org.firstinspires.ftc.teamcode.subsystems.ArmB;
+import org.firstinspires.ftc.teamcode.subsystems.Claw;
+import org.firstinspires.ftc.teamcode.subsystems.ClawB;
+import org.firstinspires.ftc.teamcode.subsystems.HypSpool;
+import org.firstinspires.ftc.teamcode.subsystems.ITDRobot;
+import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.SlidesB;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.hardware.SwitchableLight;
+
+import java.util.Arrays;
+
 
 @TeleOp
 public class TeleOpOld extends OpMode {
@@ -37,36 +46,37 @@ public class TeleOpOld extends OpMode {
 
     Limelight3A limelight;
 
-    public Arm arm;
-    public Claw claw;
-    public Slides slides;
+    public ArmB arm;
+    public ClawB claw;
+    public SlidesB slides;
     public Intake intake;
-    public FEDHES spool;
+    public HypSpool spool;
     public ITDRobot robot;
 
     public ElapsedTime slideTimer = new ElapsedTime();
 
     final int SLIDE_BASE = 0;
-    final int SLIDE_LOW = -50;
+    final int SLIDE_LOW = 50;
 
-    final int SLIDE_SPEC_START = 1600;
-    final int SLIDE_SPEC_END = 900;
+    final int SLIDE_SPEC_START = -620;
+    final int SLIDE_SPEC_END = -900;
 
-    final int SLIDE_NEAR_LOW = 700;
+    final int SLIDE_NEAR_LOW = -100;
 
-    final int SLIDE_HIGH = 2760;
+    final int SLIDE_HIGH = -1650;
 
     double INTAKE_POWER = 0.7;
 
     int eagleBLUD = 1;
 
-    private NormalizedColorSensor colorSensor;
+    /* private NormalizedColorSensor colorSensor;
     private RevBlinkinLedDriver blinkinLedDriver;
     private RevBlinkinLedDriver.BlinkinPattern blue;
     private RevBlinkinLedDriver.BlinkinPattern patternOff;
     private RevBlinkinLedDriver.BlinkinPattern yellow;
 
     private RevBlinkinLedDriver.BlinkinPattern red;
+     */
 
     int slidePos = 0;
     int slidePosH = 1500;
@@ -80,29 +90,23 @@ public class TeleOpOld extends OpMode {
     double currentVoltage = 0;
 
     final float[] hsvValues = new float[3];
-
-    private final RobotHardware hardware = RobotHardware.getInstance();
-
     @Override
     public void init() {
         slideTimer.reset();
 
-        hardware.init(hardwareMap);
-
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        /* limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
         limelight.start(); // This tells Limelight to start looking!
 
         limelight.pipelineSwitch(0);
-         */
 
-        arm = new Arm(hardwareMap);
-        claw = new Claw(hardwareMap);
-        slides = new Slides(hardwareMap);
-        intake = new Intake(hardwareMap);
-        spool = new FEDHES(hardwareMap);
+        arm = new ArmB(hardwareMap, this);
+        claw = new ClawB(hardwareMap, this);
+        slides = new SlidesB(hardwareMap, this);
+        intake = new Intake(hardwareMap, this);
+        spool = new HypSpool(hardwareMap, this);
         robot = new ITDRobot(hardwareMap, this);
         /* blinkinLedDriver = hardwareMap.get(RevBlinkinLedDriver.class, "blinkin");
         colorSensor = hardwareMap.get(RevColorSensorV3.class, "colorSensor");
@@ -133,7 +137,7 @@ public class TeleOpOld extends OpMode {
         if (gamepad1.start)
             eagleBLUD = 2;
 
-        /* LLResult result = limelight.getLatestResult();
+        LLResult result = limelight.getLatestResult();
 
         double Kp = -0.05f;
         double min_command = 0.02;
@@ -188,7 +192,7 @@ public class TeleOpOld extends OpMode {
         }
 
 
-        NormalizedRGBA colors = colorSensor.getNormalizedColors();
+        /* NormalizedRGBA colors = colorSensor.getNormalizedColors();
         Color.colorToHSV(colors.toColor(), hsvValues);
 
         if (hsvValues[0] > 12 && hsvValues[0] < 35) {
@@ -318,7 +322,7 @@ public class TeleOpOld extends OpMode {
          */
 
 
-        slides.moveHSlides(() -> gamepad2.left_stick_y);
+        slides.moveHSlides();
 
         /* if (gamepad2.b) {
             arm.back();
@@ -337,12 +341,9 @@ public class TeleOpOld extends OpMode {
         }
          */
 
-        // intake.setSkibAdjust();
+        intake.setSkibAdjust();
 
-        if (gamepad2.left_trigger > 0.25)
-            claw.wideOpen();
-        if (gamepad2.right_trigger > 0.25)
-            claw.fullClose();
+        claw.grab();
 
         if (gamepad1.dpad_left) {
             spool.rotate(1);

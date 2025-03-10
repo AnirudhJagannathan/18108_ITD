@@ -83,6 +83,8 @@ public class RobotHardware {
 
         private static RobotHardware instance = null;
         private boolean enabled;
+        
+        public boolean outtaking;
 
         private int alliance;
 
@@ -160,16 +162,14 @@ public class RobotHardware {
                     .setPIDController(new PIDController(0.006 , 0.0, 0.0004))
                     .setFeedforward(WActuatorGroup.FeedforwardMode.CONSTANT, 0.0)
 //                .setMotionProfile(0, new ProfileConstraints(1000, 5000, 2000))
-                    .setTargetPositionOffset(-75)
-                    .setErrorTolerance(85);
+                    .setErrorTolerance(100);
 
             this.slideRightActuator = new WActuatorGroup(
                     () -> intSubscriber(Sensors.SensorType.SLIDE_RIGHT_ENC), slideRight)
                     .setPIDController(new PIDController(0.006, 0.0, 0.0004))
                     .setFeedforward(WActuatorGroup.FeedforwardMode.CONSTANT, 0.0)
 //                .setMotionProfile(0, new ProfileConstraints(1000, 5000, 2000))
-                    .setTargetPositionOffset(-75)
-                    .setErrorTolerance(85);
+                    .setErrorTolerance(100);
 
             this.hSlideActuactor = new WActuatorGroup(
                     () -> intSubscriber(Sensors.SensorType.H_SLIDE_ENC), hSlides)
@@ -200,6 +200,8 @@ public class RobotHardware {
             fedhes = new FEDHES(hardwareMap);
 
             slides.reset();
+
+            outtaking = false;
         }
 
     public int intSubscriber(Sensors.SensorType topic) {

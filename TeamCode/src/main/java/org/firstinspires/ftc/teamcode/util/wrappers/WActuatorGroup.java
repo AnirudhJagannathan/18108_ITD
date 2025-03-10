@@ -345,4 +345,8 @@ public class WActuatorGroup {
     public boolean hasReached() {
         return this.reachedOffset;
     }
+
+    public double getOffset() {
+        return targetPositionOffset;
+    }
 }

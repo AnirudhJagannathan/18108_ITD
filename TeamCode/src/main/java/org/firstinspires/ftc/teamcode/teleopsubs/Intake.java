@@ -44,26 +44,32 @@ public class Intake extends WSubsystem {
     }
 
     public void intake(double power) {
+        if (power > 0)
+            robot.outtaking = true;
+        if (power < 0)
+            robot.outtaking = false;
         robot.intake.setPower(-power);
     }
 
 
     public void outtake(double power) {
+        robot.outtaking = true;
         robot.intake.setPower(power);
     }
 
     public void stop() {
+        robot.outtaking = false;
         robot.intake.setPower(0);
     }
 
     public void flipUp() {
-        robot.intake1.setPosition(0.54 + skibAdjust);
-        robot.intake2.setPosition(0.46 - skibAdjust);
+        robot.intake1.setPosition(0.55 + skibAdjust);
+        robot.intake2.setPosition(0.45 - skibAdjust);
     }
 
     public void flipDown() {
-        robot.intake1.setPosition(0.37 + skibAdjust);
-        robot.intake2.setPosition(0.63 - skibAdjust);
+        robot.intake1.setPosition(0.41 + skibAdjust);
+        robot.intake2.setPosition(0.59 - skibAdjust);
     }
 
     public void flip(boolean up) {
@@ -97,8 +103,8 @@ public class Intake extends WSubsystem {
                 robot.intake2.setPosition(0.33 - skibAdjust);
                 break;
             case UP:
-                robot.intake1.setPosition(0.01 + skibAdjust);
-                robot.intake2.setPosition(0.98 - skibAdjust);
+                robot.intake1.setPosition(0.04 + skibAdjust);
+                robot.intake2.setPosition(0.96 - skibAdjust);
                 break;
             case MIDDLE:
                 robot.intake1.setPosition(0.39);

@@ -77,12 +77,12 @@ public class Arm extends WSubsystem {
                 robot.arm2.setPosition(0.97);
                 break;
             case SPEC:
-                robot.arm1.setPosition(0.58);
-                robot.arm2.setPosition(0.42);
+                robot.arm1.setPosition(0.52);
+                robot.arm2.setPosition(0.48);
                 break;
             case SAMPLE:
-                robot.arm1.setPosition(0.12);
-                robot.arm2.setPosition(0.88);
+                robot.arm1.setPosition(0.16);
+                robot.arm2.setPosition(0.84);
                 break;
             case TWIST_SPEC:
                 robot.arm1.setPosition(0.87);

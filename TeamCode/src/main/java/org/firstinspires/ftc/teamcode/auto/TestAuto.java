@@ -11,38 +11,31 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
-import org.firstinspires.ftc.teamcode.commands.MoveHSlides;
-import org.firstinspires.ftc.teamcode.commands.MoveVSlides;
-import org.firstinspires.ftc.teamcode.commands.instant.MoveVSlidesAuto;
-import org.firstinspires.ftc.teamcode.commands.instant.PowerIntake;
-import org.firstinspires.ftc.teamcode.commands.instant.RotateIntake;
-import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
-import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
-import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
-import org.firstinspires.ftc.teamcode.teleop.TeleOpMain;
-import org.firstinspires.ftc.teamcode.teleopsubs.Intake;
-
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
 import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
-import com.seattlesolvers.solverslib.command.ParallelDeadlineGroup;
-import com.seattlesolvers.solverslib.command.ParallelRaceGroup;
 import com.seattlesolvers.solverslib.command.RunCommand;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
-import com.seattlesolvers.solverslib.command.WaitCommand;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
+
+import org.firstinspires.ftc.teamcode.commands.MoveVSlides;
+import org.firstinspires.ftc.teamcode.commands.instant.MoveVSlidesAuto;
+import org.firstinspires.ftc.teamcode.commands.instant.RotateIntake;
+import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
+import org.firstinspires.ftc.teamcode.teleopsubs.Intake;
 import org.firstinspires.ftc.teamcode.teleopsubs.SensorColor;
 import org.firstinspires.ftc.teamcode.teleopsubs.Slides;
 
 import java.util.ArrayList;
 
-
 @Autonomous
-public class BlueLeft extends CommandOpMode {
-
+public class TestAuto extends LinearOpMode {
     FtcDashboard dashboard = FtcDashboard.getInstance();
 
     private Follower follower;
@@ -73,7 +66,7 @@ public class BlueLeft extends CommandOpMode {
     private final Pose startPose = new Pose(0, 0, Math.toRadians(0));
 
     /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose = new Pose(20, 0, Math.toRadians(0));
+    private final Pose scorePose = new Pose(35, 0, Math.toRadians(0));
 
     private final Pose testPose = new Pose(5, 0, Math.toRadians(0));
 
@@ -125,8 +118,8 @@ public class BlueLeft extends CommandOpMode {
 
 
         pathChain = follower.pathBuilder().addPath(path)
-                        .setConstantHeadingInterpolation(startPose.getHeading())
-                        .build();
+                .setConstantHeadingInterpolation(startPose.getHeading())
+                .build();
 
         pathChain2 = follower.pathBuilder().addPath(path2)
                 .setConstantHeadingInterpolation(startPose.getHeading())
@@ -134,8 +127,8 @@ public class BlueLeft extends CommandOpMode {
     }
 
     @Override
-    public void initialize() {
-        super.reset();
+    public void runOpMode() throws InterruptedException {
+        CommandScheduler.getInstance().reset();
         hardware.setAlliance(1);
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -148,9 +141,9 @@ public class BlueLeft extends CommandOpMode {
         hardware.read();
         hardware.slides.setOffset(-45);
 
-        schedule(new RotateIntake(Intake.IntakeState.UP));
+        CommandScheduler.getInstance().schedule(new RotateIntake(Intake.IntakeState.UP));
 
-        while (!isStarted()) {
+        while (opModeInInit()) {
             hardware.read();
             hardware.write();
             hardware.periodic();
@@ -162,25 +155,24 @@ public class BlueLeft extends CommandOpMode {
 
         buildPaths();
 
-        schedule(
+        CommandScheduler.getInstance().schedule(
                 new RunCommand(() -> follower.update()),
-                new InstantCommand(() -> hardware.slides.setOffset(-75)),
+                new RunCommand(() -> telemetry.addData("tx", hardware.limelight.getLatestResult().getTx())),
+                new RunCommand(() -> telemetry.update()),
+                new SequentialCommandGroup(
+                        new InstantCommand(() -> hardware.slides.setOffset(-75)),
 
-                new MoveVSlidesAuto(-620)
+                        new MoveVSlidesAuto(-600)
+                )
         );
-    }
 
-    @Override
-    public void run() {
-        super.run();
+        while (opModeInInit() && !isStopRequested()) {
+            CommandScheduler.getInstance().run();
 
-        hardware.clearBulkCache();
-        hardware.read();
-        hardware.periodic();
-        hardware.write();
-
-        telemetry.addData("slidePos", hardware.slides.getVSlidesPos());
-        telemetry.addData("tx", hardware.limelight.getLatestResult().getTx());
-        telemetry.update();
+            hardware.clearBulkCache();
+            hardware.read();
+            hardware.periodic();
+            hardware.write();
+        }
     }
 }

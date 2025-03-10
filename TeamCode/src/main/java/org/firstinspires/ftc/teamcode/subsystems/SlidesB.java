@@ -207,7 +207,7 @@ public class SlidesB {
     }
 
     public int getVSlidesPos() {
-        return (Math.abs(vSlidesA.getCurrentPosition()) + Math.abs(vSlidesB.getCurrentPosition())) / 2;
+        return (int) (vSlidesA.getCurrentPosition() + vSlidesB.getCurrentPosition()) / 2;
     }
 
     public int getHSlidesPos() {
