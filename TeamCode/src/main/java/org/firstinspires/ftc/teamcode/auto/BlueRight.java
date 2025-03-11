@@ -14,10 +14,11 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.commands.MoveVSlides;
 import org.firstinspires.ftc.teamcode.commands.auto.Extend;
-import org.firstinspires.ftc.teamcode.commands.instant.MoveVSlidesAuto;
-import org.firstinspires.ftc.teamcode.commands.instant.RotateFEDHES;
+import org.firstinspires.ftc.teamcode.commands.auto.MoveHSlidesAuto;
+import org.firstinspires.ftc.teamcode.commands.auto.MoveVSlidesAuto;
+import org.firstinspires.ftc.teamcode.commands.auto.Retract;
+import org.firstinspires.ftc.teamcode.commands.instant.PowerIntake;
 import org.firstinspires.ftc.teamcode.commands.instant.RotateIntake;
 import org.firstinspires.ftc.teamcode.commands.instant.ToggleClaw;
 import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
@@ -28,6 +29,7 @@ import org.firstinspires.ftc.teamcode.teleopsubs.FEDHES;
 import org.firstinspires.ftc.teamcode.teleopsubs.Intake;
 
 import com.seattlesolvers.solverslib.command.CommandOpMode;
+import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
 import com.seattlesolvers.solverslib.command.RunCommand;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
@@ -97,7 +99,14 @@ public class BlueRight extends CommandOpMode {
     private final Pose scoreControl2 = new Pose(100, -26, Math.toRadians(0));
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
-    private PathChain p0,p1,p2,p3, p4, p5, p6, p7, p8, p9;
+    private PathChain p0,p1,p2,p3, p4, p5, p6, p7, p8, p9, pAlign;
+
+    private int intakeRegion = -1;
+
+    private double[] intakeRegions = new double[] {75, 72, 69, 66, 63, 60};
+
+    private boolean startHeld = false;
+    private boolean backHeld = false;
 
 
     private final ArrayList<PathChain> paths = new ArrayList<>();
@@ -125,7 +134,7 @@ public class BlueRight extends CommandOpMode {
 
         follower.setStartingPose(startPose);
 
-        follower.setMaxPower(1);
+        follower.setMaxPower(0.8);
 
 
         p0 = follower.pathBuilder()
@@ -133,7 +142,7 @@ public class BlueRight extends CommandOpMode {
                         // Line 1
                         new BezierLine(
                                 new Point(6.794, 64.792, Point.CARTESIAN),
-                                new Point(30.604, 69.763, Point.CARTESIAN)
+                                new Point(36, intakeRegions[intakeRegion], Point.CARTESIAN)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
@@ -247,6 +256,7 @@ public class BlueRight extends CommandOpMode {
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         hardware.init(hardwareMap);
+        hardware.slides.setOffset(-30);
 
         for (LynxModule module : hardwareMap.getAll(LynxModule.class))
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
@@ -256,7 +266,7 @@ public class BlueRight extends CommandOpMode {
         hardware.limelight.pipelineSwitch(2);
 
         hardware.read();
-        hardware.slides.setOffset(-45);
+        hardware.slides.setAuto(true);
 
         schedule(
                 new RotateIntake(Intake.IntakeState.UP),
@@ -269,6 +279,17 @@ public class BlueRight extends CommandOpMode {
             hardware.periodic();
             hardware.clearBulkCache();
 
+            if (gamepad1.start && !startHeld)
+                intakeRegion += 1;
+            if (gamepad1.back && !backHeld)
+                intakeRegion -= 1;
+
+            startHeld = gamepad1.start;
+            backHeld = gamepad1.back;
+
+            telemetry.addData("intakeRegion", intakeRegion);
+            telemetry.update();
+
             //telemetry.addData("tx", hardware.limelight.getLatestResult().getTx());
             //telemetry.update();
         }
@@ -280,10 +301,24 @@ public class BlueRight extends CommandOpMode {
                 new SequentialCommandGroup(
                         new ParallelCommandGroup(
                             new FollowPathCommand(follower, p0),
-                            new MoveVSlidesAuto(-600),
-                            new Extend(Claw.YawState.CENTER)
+                            new WaitCommand(400),
+                            new MoveVSlidesAuto(-650),
+                            new Extend(Claw.YawState.CENTER, FEDHES.FEDHESState.LESS_FRONT),
+                            new MoveHSlidesAuto(700)
                         ),
-                        new MoveVSlidesAuto(-900)
+                        new WaitCommand(200),
+                        new MoveVSlidesAuto(-900),
+                        new ToggleClaw(Claw.ClawState.WIDE_OPEN),
+                        new WaitCommand(250),
+                        new ParallelCommandGroup(
+                            new InstantCommand(() -> hardware.slides.setOffset(0)),
+                            new MoveVSlidesAuto(25),
+                            new Retract(Claw.YawState.CENTER),
+                            new ToggleClaw(Claw.ClawState.CLOSED),
+                            new RotateIntake(Intake.IntakeState.DOWN)
+                        ),
+                        new PowerIntakeAuto(0.8, 0)
+
 
                         /* new FollowPathCommand(follower, p1),
                         new FollowPathCommand(follower, p2),

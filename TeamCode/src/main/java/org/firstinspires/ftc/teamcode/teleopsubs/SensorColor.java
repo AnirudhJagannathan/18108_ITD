@@ -14,10 +14,13 @@ public class SensorColor extends WSubsystem {
 
     private final int eagleBLUD;
 
+    private boolean acceptYellow = true;
+
     private NormalizedRGBA colors;
 
-    public SensorColor(int eagleBLUD) {
+    public SensorColor(int eagleBLUD, boolean acceptYellow) {
         this.eagleBLUD = eagleBLUD;
+        this.acceptYellow = acceptYellow;
         colors = null;
         if (robot.colorSensor instanceof SwitchableLight) {
             ((SwitchableLight) robot.colorSensor).enableLight(true);

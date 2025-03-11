@@ -89,6 +89,9 @@ public class RobotHardware {
         private int alliance;
 
         private double tx;
+
+        private boolean finished;
+
         private HardwareMap hardwareMap;
 
         public HashMap<Sensors.SensorType, Object> values;
@@ -137,7 +140,6 @@ public class RobotHardware {
             limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
             colorSensor = hardwareMap.get(NormalizedColorSensor.class, "colorSensor");
-
 
             leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
             rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
@@ -199,7 +201,7 @@ public class RobotHardware {
             claw = new Claw(hardwareMap);
             spintake = new Intake(hardwareMap);
             slides = new Slides(hardwareMap);
-            color = new SensorColor(alliance);
+            color = new SensorColor(alliance, true);
             fedhes = new FEDHES(hardwareMap);
 
             slides.reset();
@@ -248,7 +250,10 @@ public class RobotHardware {
     }
 
     public void update() {
-
+         clearBulkCache();
+         read();
+         periodic();
+         write();
     }
 
     public void setAlliance(int alliance) {
@@ -268,4 +273,12 @@ public class RobotHardware {
     public double getTx() { return tx; }
 
     public void setTx(double tx) { this.tx = tx; }
+
+    public boolean getFinished() {
+            return finished;
+    }
+
+    public void setFinished(boolean finished) {
+            this.finished = finished;
+    }
 }

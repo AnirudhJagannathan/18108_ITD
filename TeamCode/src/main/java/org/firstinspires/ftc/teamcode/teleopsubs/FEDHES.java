@@ -25,6 +25,7 @@ public class FEDHES extends WSubsystem { //You can see the pain in the TDHES
         BACK,
         DOWN,
         FRONT,
+        LESS_FRONT
     }
 
     public void rotate(double pos) {
@@ -60,6 +61,9 @@ public class FEDHES extends WSubsystem { //You can see the pain in the TDHES
                 robot.hypRight.setPosition(0);
                 this.state = state;
                 break;
+            case LESS_FRONT:
+                robot.hypLeft.setPosition(0.7);
+                robot.hypRight.setPosition(0.3);
         }
     }
 

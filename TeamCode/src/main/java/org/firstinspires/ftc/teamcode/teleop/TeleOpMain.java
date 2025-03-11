@@ -220,11 +220,11 @@ public class TeleOpMain extends CommandOpMode {
 
         while (opModeInInit()) {
             if (gamepad1.start) {
-                hardware.setColorSensor(new SensorColor(1));
+                hardware.setColorSensor(new SensorColor(1, true));
                 telemetry.addData("Limelight Sample Color", "Red");
             }
             if (gamepad1.back) {
-                hardware.setColorSensor(new SensorColor(0));
+                hardware.setColorSensor(new SensorColor(0, true));
                 telemetry.addData("Limelight Sample Color", "Blue");
             }
             telemetry.update();
@@ -312,7 +312,7 @@ public class TeleOpMain extends CommandOpMode {
                         }
                         if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                             slidePos = SLIDE_LOW;
-                            hardware.slides.setOffset(-40);
+                            hardware.slides.setOffset(-25);
                             hardware.slideLeftActuator.setErrorTolerance(150);
                             hardware.slideRightActuator.setErrorTolerance(150);
                             CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));

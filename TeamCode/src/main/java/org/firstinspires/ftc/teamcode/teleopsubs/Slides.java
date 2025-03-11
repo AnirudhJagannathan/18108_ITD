@@ -232,6 +232,10 @@ public class Slides extends WSubsystem {
         robot.slideRightActuator.setTargetPosition(targetPosition);
     }
 
+    public void setTargetPositionH(int targetPosition) {
+        robot.hSlideActuactor.setTargetPosition(targetPosition);
+    }
+
     public void setVCurrentPosition(double position) {
         robot.slideLeftActuator.setCurrentPosition(position);
         robot.slideRightActuator.setCurrentPosition(position);
