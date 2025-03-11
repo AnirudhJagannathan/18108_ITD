@@ -219,7 +219,6 @@ public class WActuatorGroup {
 
     public void setCurrentPosition(double position) {
         this.position = position;
-
     }
 
     public WActuatorGroup setPID(double p, double i, double d) {
@@ -348,5 +347,9 @@ public class WActuatorGroup {
 
     public double getOffset() {
         return targetPositionOffset;
+    }
+
+    public void setPower(double power) {
+        this.power = power;
     }
 }

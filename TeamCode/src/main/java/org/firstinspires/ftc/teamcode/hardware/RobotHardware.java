@@ -116,6 +116,9 @@ public class RobotHardware {
 
             slideRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
+            slideLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            slideRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
             arm1 = new WServo(hardwareMap.get(Servo.class, "arm"));
             arm2 = new WServo(hardwareMap.get(Servo.class, "arm2"));
 
@@ -162,14 +165,14 @@ public class RobotHardware {
                     .setPIDController(new PIDController(0.006 , 0.0, 0.0004))
                     .setFeedforward(WActuatorGroup.FeedforwardMode.CONSTANT, 0.0)
 //                .setMotionProfile(0, new ProfileConstraints(1000, 5000, 2000))
-                    .setErrorTolerance(100);
+                    .setErrorTolerance(50);
 
             this.slideRightActuator = new WActuatorGroup(
                     () -> intSubscriber(Sensors.SensorType.SLIDE_RIGHT_ENC), slideRight)
                     .setPIDController(new PIDController(0.006, 0.0, 0.0004))
                     .setFeedforward(WActuatorGroup.FeedforwardMode.CONSTANT, 0.0)
 //                .setMotionProfile(0, new ProfileConstraints(1000, 5000, 2000))
-                    .setErrorTolerance(100);
+                    .setErrorTolerance(50);
 
             this.hSlideActuactor = new WActuatorGroup(
                     () -> intSubscriber(Sensors.SensorType.H_SLIDE_ENC), hSlides)
@@ -220,6 +223,9 @@ public class RobotHardware {
         values.put(Sensors.SensorType.SLIDE_RIGHT_ENC, slideRightEnc.getPosition());
         values.put(Sensors.SensorType.H_SLIDE_ENC, hSlideEnc.getPosition());
 
+        slideLeftActuator.setCurrentPosition(slideLeft.getCurrentPosition());
+        slideRightActuator.setCurrentPosition(slideRight.getCurrentPosition());
+
         color.read();
         // tx = limelight.getLatestResult().getTx();
     }
@@ -239,6 +245,10 @@ public class RobotHardware {
 
     public void clearBulkCache() {
         CONTROL_HUB.clearBulkCache();
+    }
+
+    public void update() {
+
     }
 
     public void setAlliance(int alliance) {

@@ -94,6 +94,7 @@ public class TeleOpMain extends CommandOpMode {
                                 ),
                                 new WaitCommand(200).andThen(
                                         new ParallelCommandGroup(
+                                                new RotateYaw(Claw.YawState.CENTER),
                                                 new RotateArm(Arm.ArmState.SAMPLE),
                                                 new RotateFEDHES(FEDHES.FEDHESState.BACK)
                                         )
@@ -110,6 +111,7 @@ public class TeleOpMain extends CommandOpMode {
                                 ),
                                 new WaitCommand(200).andThen(
                                         new ParallelCommandGroup(
+                                                new RotateYaw(Claw.YawState.CENTER),
                                                 new RotateArm(Arm.ArmState.DOWN),
                                                 new RotateFEDHES(FEDHES.FEDHESState.DOWN)
                                         )
@@ -128,6 +130,7 @@ public class TeleOpMain extends CommandOpMode {
                                 ),
                                 new WaitCommand(200).andThen(
                                         new ParallelCommandGroup(
+                                                new RotateYaw(Claw.YawState.CENTER),
                                                 new RotateArm(Arm.ArmState.UP),
                                                 new RotateFEDHES(FEDHES.FEDHESState.BACK)
                                         )
@@ -225,7 +228,7 @@ public class TeleOpMain extends CommandOpMode {
                 telemetry.addData("Limelight Sample Color", "Blue");
             }
             telemetry.update();
-            hardware.slides.setOffset(-45);
+            hardware.slides.setOffset(-25);
         }
     }
 
@@ -277,7 +280,7 @@ public class TeleOpMain extends CommandOpMode {
                     if (slidePos == SLIDE_HIGH) {
                         if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                             slidePos = SLIDE_LOW;
-                            hardware.slides.setOffset(-40);
+                            hardware.slides.setOffset(-25);
                             hardware.slideLeftActuator.setErrorTolerance(150);
                             hardware.slideRightActuator.setErrorTolerance(150);
                             CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
@@ -327,7 +330,7 @@ public class TeleOpMain extends CommandOpMode {
                         }
                         if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                             slidePos = SLIDE_LOW;
-                            hardware.slides.setOffset(-40);
+                            hardware.slides.setOffset(-25);
                             hardware.slideLeftActuator.setErrorTolerance(150);
                             hardware.slideRightActuator.setErrorTolerance(150);
                             CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
@@ -343,7 +346,7 @@ public class TeleOpMain extends CommandOpMode {
             case SPEC:
                 if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                     slidePos = SLIDE_LOW;
-                    hardware.slides.setOffset(-40);
+                    hardware.slides.setOffset(-25);
                     hardware.slideLeftActuator.setErrorTolerance(150);
                     hardware.slideRightActuator.setErrorTolerance(150);
                     CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));

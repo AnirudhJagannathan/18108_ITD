@@ -103,8 +103,8 @@ public class Intake extends WSubsystem {
                 robot.intake2.setPosition(0.33 - skibAdjust);
                 break;
             case UP:
-                robot.intake1.setPosition(0.04 + skibAdjust);
-                robot.intake2.setPosition(0.96 - skibAdjust);
+                robot.intake1.setPosition(0.065 + skibAdjust);
+                robot.intake2.setPosition(0.935 - skibAdjust);
                 break;
             case MIDDLE:
                 robot.intake1.setPosition(0.39);

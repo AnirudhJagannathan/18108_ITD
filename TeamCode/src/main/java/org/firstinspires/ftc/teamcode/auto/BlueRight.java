@@ -13,32 +13,36 @@ import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.seattlesolvers.solverslib.command.Command;
+
+import org.firstinspires.ftc.teamcode.commands.MoveVSlides;
+import org.firstinspires.ftc.teamcode.commands.auto.Extend;
+import org.firstinspires.ftc.teamcode.commands.instant.MoveVSlidesAuto;
+import org.firstinspires.ftc.teamcode.commands.instant.RotateFEDHES;
+import org.firstinspires.ftc.teamcode.commands.instant.RotateIntake;
+import org.firstinspires.ftc.teamcode.commands.instant.ToggleClaw;
+import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
+import org.firstinspires.ftc.teamcode.teleopsubs.Claw;
+import org.firstinspires.ftc.teamcode.teleopsubs.FEDHES;
+import org.firstinspires.ftc.teamcode.teleopsubs.Intake;
+
 import com.seattlesolvers.solverslib.command.CommandOpMode;
-import com.seattlesolvers.solverslib.command.CommandScheduler;
-import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
 import com.seattlesolvers.solverslib.command.RunCommand;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
-
-import org.firstinspires.ftc.teamcode.commands.MoveVSlides;
-import org.firstinspires.ftc.teamcode.commands.instant.MoveVSlidesAuto;
-import org.firstinspires.ftc.teamcode.commands.instant.RotateIntake;
-import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
-import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
-import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
-import org.firstinspires.ftc.teamcode.teleopsubs.Intake;
 import org.firstinspires.ftc.teamcode.teleopsubs.SensorColor;
 import org.firstinspires.ftc.teamcode.teleopsubs.Slides;
 
 import java.util.ArrayList;
 
+
 @Autonomous
-public class TestAuto extends CommandOpMode {
+public class BlueRight extends CommandOpMode {
+
     FtcDashboard dashboard = FtcDashboard.getInstance();
 
     private Follower follower;
@@ -97,10 +101,6 @@ public class TestAuto extends CommandOpMode {
 
 
     private final ArrayList<PathChain> paths = new ArrayList<>();
-
-
-    private int slidePos = 0;
-
     PathChain pathChain = new PathChain();
     PathChain pathChain2 = new PathChain();
     Path path = new Path(
@@ -125,7 +125,7 @@ public class TestAuto extends CommandOpMode {
 
         follower.setStartingPose(startPose);
 
-        follower.setMaxPower(0.8);
+        follower.setMaxPower(1);
 
 
         p0 = follower.pathBuilder()
@@ -133,7 +133,7 @@ public class TestAuto extends CommandOpMode {
                         // Line 1
                         new BezierLine(
                                 new Point(6.794, 64.792, Point.CARTESIAN),
-                                new Point(33.604, 69.763, Point.CARTESIAN)
+                                new Point(30.604, 69.763, Point.CARTESIAN)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
@@ -258,7 +258,10 @@ public class TestAuto extends CommandOpMode {
         hardware.read();
         hardware.slides.setOffset(-45);
 
-        schedule(new RotateIntake(Intake.IntakeState.UP));
+        schedule(
+                new RotateIntake(Intake.IntakeState.UP),
+                new ToggleClaw(Claw.ClawState.CLOSED)
+        );
 
         while (!isStarted()) {
             hardware.read();
@@ -266,10 +269,7 @@ public class TestAuto extends CommandOpMode {
             hardware.periodic();
             hardware.clearBulkCache();
 
-            telemetry.addData("slideLeftPos", hardware.slideLeft.getCurrentPosition());
-            telemetry.addData("slideRightPos", hardware.slideRight.getCurrentPosition());
-            telemetry.addData("tx", hardware.limelight.getLatestResult().getTx());
-            telemetry.update();
+            //telemetry.addData("tx", hardware.limelight.getLatestResult().getTx());
             //telemetry.update();
         }
 
@@ -277,16 +277,15 @@ public class TestAuto extends CommandOpMode {
 
         schedule(
                 new RunCommand(() -> follower.update()),
-                new RunCommand(() -> telemetry.addData("slideLeftPos", hardware.slideLeftActuator.getPosition())),
-                new RunCommand(() -> telemetry.addData("slideRightPos", hardware.slideRightActuator.getPosition())),
-                new RunCommand(() -> telemetry.update()),
                 new SequentialCommandGroup(
-                        new MoveVSlidesAuto(-600),
-                        new MoveVSlidesAuto(-1000),
-                        new MoveVSlidesAuto(-50)
-                        /* new FollowPathCommand(follower, p0),
-                        new InstantCommand(() -> follower.setMaxPower(1)),
-                        new FollowPathCommand(follower, p1),
+                        new ParallelCommandGroup(
+                            new FollowPathCommand(follower, p0),
+                            new MoveVSlidesAuto(-600),
+                            new Extend(Claw.YawState.CENTER)
+                        ),
+                        new MoveVSlidesAuto(-900)
+
+                        /* new FollowPathCommand(follower, p1),
                         new FollowPathCommand(follower, p2),
                         new FollowPathCommand(follower, p3),
                         new FollowPathCommand(follower, p4),
@@ -306,22 +305,21 @@ public class TestAuto extends CommandOpMode {
                         new FollowPathCommand(follower, p8)
                          */
                 )
+
         );
     }
 
     @Override
     public void run() {
-        // new MoveVSlidesAuto(hardwareMap, slidePos);
+        super.run();
+
         hardware.clearBulkCache();
         hardware.read();
         hardware.periodic();
         hardware.write();
 
         telemetry.addData("slidePos", hardware.slides.getVSlidesPos());
-        telemetry.addData("isFinished", hardware.slides.hasReachedV());
         telemetry.addData("tx", hardware.limelight.getLatestResult().getTx());
         telemetry.update();
-
-        super.run();
     }
 }
