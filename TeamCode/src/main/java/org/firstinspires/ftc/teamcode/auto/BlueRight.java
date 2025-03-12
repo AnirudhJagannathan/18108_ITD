@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.auto;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
@@ -15,15 +16,20 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.commands.auto.Extend;
+import org.firstinspires.ftc.teamcode.commands.auto.MoveFEDHES;
 import org.firstinspires.ftc.teamcode.commands.auto.MoveHSlidesAuto;
 import org.firstinspires.ftc.teamcode.commands.auto.MoveVSlidesAuto;
 import org.firstinspires.ftc.teamcode.commands.auto.Retract;
+import org.firstinspires.ftc.teamcode.commands.auto.Transfer;
 import org.firstinspires.ftc.teamcode.commands.instant.PowerIntake;
+import org.firstinspires.ftc.teamcode.commands.instant.RotateArm;
 import org.firstinspires.ftc.teamcode.commands.instant.RotateIntake;
+import org.firstinspires.ftc.teamcode.commands.instant.RotateYaw;
 import org.firstinspires.ftc.teamcode.commands.instant.ToggleClaw;
 import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
+import org.firstinspires.ftc.teamcode.teleopsubs.Arm;
 import org.firstinspires.ftc.teamcode.teleopsubs.Claw;
 import org.firstinspires.ftc.teamcode.teleopsubs.FEDHES;
 import org.firstinspires.ftc.teamcode.teleopsubs.Intake;
@@ -103,7 +109,7 @@ public class BlueRight extends CommandOpMode {
 
     private int intakeRegion = -1;
 
-    private double[] intakeRegions = new double[] {75, 72, 69, 66, 63, 60};
+    private double[] intakeRegions = new double[] {75, 73.5, 72, 70.5, 69, 67.5, 66, 64.5, 63, 61.5, 60};
 
     private boolean startHeld = false;
     private boolean backHeld = false;
@@ -142,7 +148,7 @@ public class BlueRight extends CommandOpMode {
                         // Line 1
                         new BezierLine(
                                 new Point(6.794, 64.792, Point.CARTESIAN),
-                                new Point(36, intakeRegions[intakeRegion], Point.CARTESIAN)
+                                new Point(37.2, intakeRegions[intakeRegion], Point.CARTESIAN)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
@@ -151,56 +157,57 @@ public class BlueRight extends CommandOpMode {
         p1 = follower.pathBuilder()
                 .addPath(
                         // Line 2
-                        new BezierLine(
-                                new Point(33.604, 69.763, Point.CARTESIAN),
-                                new Point(20.085, 37.616, Point.CARTESIAN)
+                        new BezierCurve(
+                                new Point(37.2, intakeRegions[intakeRegion], Point.CARTESIAN),
+                                new Point(24.525, 62.638, Point.CARTESIAN),
+                                new Point(24, 42, Point.CARTESIAN)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-110))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-135))
                 .build();
 
         p2 = follower.pathBuilder()
                 .addPath(
                         // Line 3
                         new BezierLine(
-                                new Point(20.085, 37.616, Point.CARTESIAN),
-                                new Point(23.530, 32.976, Point.CARTESIAN)
+                                new Point(24, 42, Point.CARTESIAN),
+                                new Point(25, 39, Point.CARTESIAN)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(-110), Math.toRadians(-30))
+                .setLinearHeadingInterpolation(Math.toRadians(-135), Math.toRadians(-40))
                 .build();
 
         p3 = follower.pathBuilder()
                 .addPath(
                         // Line 4
                         new BezierLine(
-                                new Point(23.530, 32.976, Point.CARTESIAN),
-                                new Point(19.554, 29.827, Point.CARTESIAN)
+                                new Point(25, 39, Point.CARTESIAN),
+                                new Point(26, 30, Point.CARTESIAN)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(-30), Math.toRadians(-120))
+                .setLinearHeadingInterpolation(Math.toRadians(-40), Math.toRadians(-135))
                 .build();
 
         p4 = follower.pathBuilder()
                 .addPath(
                         // Line 5
                         new BezierLine(
-                                new Point(19.554, 29.827, Point.CARTESIAN),
-                                new Point(30.656, 20.382, Point.CARTESIAN)
+                                new Point(26, 30, Point.CARTESIAN),
+                                new Point(26, 23, Point.CARTESIAN)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(-120), Math.toRadians(-30))
+                .setLinearHeadingInterpolation(Math.toRadians(-135), Math.toRadians(-30))
                 .build();
 
         p5 = follower.pathBuilder()
                 .addPath(
                         // Line 6
                         new BezierLine(
-                                new Point(30.656, 20.382, Point.CARTESIAN),
-                                new Point(23.365, 18.559, Point.CARTESIAN)
+                                new Point(26, 23, Point.CARTESIAN),
+                                new Point(26, 26, Point.CARTESIAN)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(-30), Math.toRadians(-150))
+                .setLinearHeadingInterpolation(Math.toRadians(-30), Math.toRadians(-120))
                 .build();
 
         p6 = follower.pathBuilder()
@@ -252,11 +259,12 @@ public class BlueRight extends CommandOpMode {
     @Override
     public void initialize() {
         super.reset();
-        hardware.setAlliance(1);
+        hardware.setAlliance(0);
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         hardware.init(hardwareMap);
-        hardware.slides.setOffset(-30);
+        hardware.slides.reset();
+        hardware.slides.setOffset(0);
 
         for (LynxModule module : hardwareMap.getAll(LynxModule.class))
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
@@ -268,9 +276,12 @@ public class BlueRight extends CommandOpMode {
         hardware.read();
         hardware.slides.setAuto(true);
 
+        hardware.color.acceptYellow = false;
+
         schedule(
                 new RotateIntake(Intake.IntakeState.UP),
-                new ToggleClaw(Claw.ClawState.CLOSED)
+                new ToggleClaw(Claw.ClawState.CLOSED),
+                new RotateYaw(Claw.YawState.CENTER)
         );
 
         while (!isStarted()) {
@@ -299,25 +310,221 @@ public class BlueRight extends CommandOpMode {
         schedule(
                 new RunCommand(() -> follower.update()),
                 new SequentialCommandGroup(
+                        new InstantCommand(() -> follower.setMaxPower(0.8)),
                         new ParallelCommandGroup(
-                            new FollowPathCommand(follower, p0),
+                            new FollowPathCommand(follower, p0), // Move to submersible to deposit first spec
                             new WaitCommand(400),
-                            new MoveVSlidesAuto(-650),
+                            new MoveVSlidesAuto(-705, -50, 3),
                             new Extend(Claw.YawState.CENTER, FEDHES.FEDHESState.LESS_FRONT),
-                            new MoveHSlidesAuto(700)
+                            new MoveHSlidesAuto(400) // Reach into sub
                         ),
-                        new WaitCommand(200),
-                        new MoveVSlidesAuto(-900),
+                        new ParallelCommandGroup(
+                                new RotateArm(Arm.ArmState.SPEC),
+                                new MoveVSlidesAuto(-970, -75, 1.5) // Hang spec
+                        ),
                         new ToggleClaw(Claw.ClawState.WIDE_OPEN),
-                        new WaitCommand(250),
+
+                        // Deposit FIRST SAMPLE into obs zone
                         new ParallelCommandGroup(
                             new InstantCommand(() -> hardware.slides.setOffset(0)),
-                            new MoveVSlidesAuto(25),
-                            new Retract(Claw.YawState.CENTER),
-                            new ToggleClaw(Claw.ClawState.CLOSED),
-                            new RotateIntake(Intake.IntakeState.DOWN)
+                            new MoveVSlidesAuto(25, 0, 3),
+                            new Transfer(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN),
+                            new SequentialCommandGroup(
+                                    new RotateIntake(Intake.IntakeState.DOWN),
+                                    new ParallelCommandGroup(
+                                            new PowerIntakeColor(0.8, 0),
+                                            new MoveHSlidesAuto(900)
+                                    )
+                            )
                         ),
-                        new PowerIntakeAuto(0.8, 0)
+                        new PowerIntakeTime(-0.5, 0.15),
+                        new InstantCommand(() -> follower.setMaxPower(1.0)),
+                        new ParallelCommandGroup(
+                                new PowerIntake(0),
+                                new RotateIntake(Intake.IntakeState.UP),
+                                new FollowPathCommand(follower, p1) //Head to obs zone
+                                /*new SequentialCommandGroup(
+                                        new MoveHSlidesAuto(-25),
+                                        new PowerIntakeTime(1, 0.5),
+                                        new WaitCommand(200),
+                                        new ToggleClaw(Claw.ClawState.CLOSED),
+                                        new WaitCommand(100),
+                                        new Retract(Claw.YawState.CENTER)
+                                )*/
+                        ),
+                        new MoveHSlidesAuto(400),
+                        new PowerIntakeTime(-0.5, 0.5),
+                        new WaitCommand(200),
+
+                        new ParallelCommandGroup(
+                                new PowerIntakeColor(0.8, 0),
+                                new MoveHSlidesAuto(900),
+                                new RotateIntake(Intake.IntakeState.DOWN),
+                                new FollowPathCommand(follower, p2) //Head to obs zone
+                                /*new SequentialCommandGroup(
+                                        new MoveHSlidesAuto(-25),
+                                        new PowerIntakeTime(1, 0.5),
+                                        new WaitCommand(200),
+                                        new ToggleClaw(Claw.ClawState.CLOSED),
+                                        new WaitCommand(100),
+                                        new Retract(Claw.YawState.CENTER)
+                                )*/
+                        ),
+
+                        new ParallelCommandGroup(
+                                new PowerIntakeTime(-0.5, 0.5),
+                                new MoveHSlidesAuto(600),
+                                new RotateIntake(Intake.IntakeState.UP),
+                                new FollowPathCommand(follower, p3) //Head to obs zone
+                                /*new SequentialCommandGroup(
+                                        new MoveHSlidesAuto(-25),
+                                        new PowerIntakeTime(1, 0.5),
+                                        new WaitCommand(200),
+                                        new ToggleClaw(Claw.ClawState.CLOSED),
+                                        new WaitCommand(100),
+                                        new Retract(Claw.YawState.CENTER)
+                                )*/
+                        )
+/*
+                        //new ToggleClaw(Claw.ClawState.WIDE_OPEN),
+
+                        // Get SECOND sample from spike mark
+                        new ParallelCommandGroup(
+                                new FollowPathCommand(follower, p2),
+                                new RotateIntake(Intake.IntakeState.DOWN),
+                                new PowerIntakeColor(0.8, 0),
+                                new MoveHSlidesAuto(700),
+                                new SequentialCommandGroup(
+                                        new WaitCommand(300),
+                                        new ToggleClaw(Claw.ClawState.CLOSED),
+                                        new WaitCommand(200),
+                                        new Transfer(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN),
+                                        new ToggleClaw(Claw.ClawState.WIDE_OPEN)
+                                )
+                        ),
+                        new ParallelCommandGroup(
+                                new RotateIntake(Intake.IntakeState.UP),
+                                new FollowPathCommand(follower, p3),
+                                new SequentialCommandGroup(
+                                        new MoveHSlidesAuto(-25),
+                                        new PowerIntakeTime(1, 0.5),
+                                        new WaitCommand(200),
+                                        new ToggleClaw(Claw.ClawState.CLOSED),
+                                        new WaitCommand(100),
+                                        new Retract(Claw.YawState.CENTER),
+                                        new RotateIntake(Intake.IntakeState.DOWN),
+                                        new WaitCommand(200),
+                                        new ParallelCommandGroup(
+                                                new ToggleClaw(Claw.ClawState.WIDE_OPEN),
+                                                new PowerIntakeColor(0.8, 0),
+                                                new MoveHSlidesAuto(700)
+                                        )
+                                )
+                        ),
+
+                        // Get THIRD sample from spike mark
+                        new ParallelCommandGroup(
+                                new SequentialCommandGroup(
+                                        new ToggleClaw(Claw.ClawState.CLOSED),
+                                        new WaitCommand(200),
+                                        new Transfer(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN),
+                                        new ToggleClaw(Claw.ClawState.WIDE_OPEN)
+                                )
+                        ),
+                        new ParallelCommandGroup(
+                                new RotateIntake(Intake.IntakeState.UP),
+                                new FollowPathCommand(follower, p4),
+                                new SequentialCommandGroup(
+                                        new MoveHSlidesAuto(-25),
+                                        new PowerIntakeTime(1, 0.5),
+                                        new WaitCommand(200),
+                                        new ToggleClaw(Claw.ClawState.CLOSED),
+                                        new WaitCommand(100),
+                                        new Retract(Claw.YawState.CENTER),
+                                        new RotateIntake(Intake.IntakeState.DOWN),
+                                        new WaitCommand(200),
+                                        new ParallelCommandGroup(
+                                                new ToggleClaw(Claw.ClawState.WIDE_OPEN),
+                                                new PowerIntakeColor(0.8, 0),
+                                                new MoveHSlidesAuto(700)
+                                        )
+                                )
+                        ),
+
+                        // Get FOURTH sample from spike mark
+                        new ParallelCommandGroup(
+                                new SequentialCommandGroup(
+                                        new ToggleClaw(Claw.ClawState.CLOSED),
+                                        new WaitCommand(200),
+                                        new Transfer(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN),
+                                        new ToggleClaw(Claw.ClawState.WIDE_OPEN)
+                                )
+                        ),*/
+                        /*new ParallelCommandGroup(
+                                new RotateIntake(Intake.IntakeState.UP),
+                                new FollowPathCommand(follower, p5),
+                                new SequentialCommandGroup(
+                                        new MoveHSlidesAuto(-25),
+                                        new PowerIntakeTime(1, 0.5),
+                                        new WaitCommand(200),
+                                        new ToggleClaw(Claw.ClawState.CLOSED),
+                                        new WaitCommand(100),
+                                        new Retract(Claw.YawState.CENTER),
+                                        new WaitCommand(200),
+                                        new ParallelCommandGroup(
+                                                new ToggleClaw(Claw.ClawState.WIDE_OPEN),
+                                                new RotateYaw(Claw.YawState.RIGHT)
+                                        )
+                                )
+                        )*/
+
+                        /* new ParallelCommandGroup(
+                                new PowerIntakeColor(0.8, 0),
+                                new MoveHSlidesAuto(800),
+                                new RotateIntake(Intake.IntakeState.DOWN),
+                                new SequentialCommandGroup(
+                                        new ToggleClaw(Claw.ClawState.CLOSED),
+                                        new Transfer(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN),
+                                        new ToggleClaw(Claw.ClawState.WIDE_OPEN)
+                                )
+                        ),
+                        new ParallelCommandGroup(
+                                new RotateIntake(Intake.IntakeState.UP),
+                                new FollowPathCommand(follower, p4),
+                                new SequentialCommandGroup(
+                                        new MoveHSlidesAuto(-25),
+                                        new PowerIntakeTime(1, 0.5),
+                                        new WaitCommand(200),
+                                        new ToggleClaw(Claw.ClawState.CLOSED),
+                                        new WaitCommand(200),
+                                        new Retract(Claw.YawState.CENTER)
+                                )
+                        ),
+                        new ToggleClaw(Claw.ClawState.WIDE_OPEN),
+                        new ParallelCommandGroup(
+                                new PowerIntakeColor(0.8, 0),
+                                new MoveHSlidesAuto(800),
+                                new RotateIntake(Intake.IntakeState.DOWN),
+                                new SequentialCommandGroup(
+                                        new ToggleClaw(Claw.ClawState.CLOSED),
+                                        new Transfer(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN),
+                                        new ToggleClaw(Claw.ClawState.WIDE_OPEN)
+                                )
+                        ),
+                        new ParallelCommandGroup(
+                                new RotateIntake(Intake.IntakeState.UP),
+                                new FollowPathCommand(follower, p5),
+                                new SequentialCommandGroup(
+                                        new MoveHSlidesAuto(-25),
+                                        new PowerIntakeTime(1, 0.5),
+                                        new WaitCommand(200),
+                                        new ToggleClaw(Claw.ClawState.CLOSED),
+                                        new WaitCommand(200),
+                                        new Retract(Claw.YawState.CENTER)
+                                )
+                        )
+
+
 
 
                         /* new FollowPathCommand(follower, p1),
@@ -354,6 +561,7 @@ public class BlueRight extends CommandOpMode {
         hardware.write();
 
         telemetry.addData("slidePos", hardware.slides.getVSlidesPos());
+        telemetry.addData("currentPath", follower.getCurrentPath());
         telemetry.addData("tx", hardware.limelight.getLatestResult().getTx());
         telemetry.update();
     }

@@ -1,16 +1,14 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.seattlesolvers.solverslib.command.CommandBase;
-import com.seattlesolvers.solverslib.command.InstantCommand;
 
-import org.firstinspires.ftc.teamcode.commands.instant.PowerIntake;
 import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
 
-public class PowerIntakeAuto extends CommandBase {
+public class PowerIntakeColor extends CommandBase {
 
     private double power;
     private int alliance;
-    public PowerIntakeAuto(double power, int alliance) {
+    public PowerIntakeColor(double power, int alliance) {
         this.power = power;
         this.alliance = alliance;
     }

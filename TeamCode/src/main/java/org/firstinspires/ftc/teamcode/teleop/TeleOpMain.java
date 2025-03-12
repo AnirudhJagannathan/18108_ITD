@@ -147,12 +147,6 @@ public class TeleOpMain extends CommandOpMode {
                                         new RotateYaw(Claw.YawState.CENTER),
                                         new RotateFEDHES(FEDHES.FEDHESState.FRONT),
                                         new RotateArm(Arm.ArmState.SPEC)
-                                ),
-                                new WaitCommand(hardware.fedhes.getState() == FEDHES.FEDHESState.DOWN ? 600 : 850).andThen(
-                                        new ParallelCommandGroup(
-                                                // new RotateArm(Arm.ArmState.TWIST_SPEC),
-                                                new RotateYaw(Claw.YawState.CENTER)
-                                        )
                                 )
                         ) : new SequentialCommandGroup()
                 ));

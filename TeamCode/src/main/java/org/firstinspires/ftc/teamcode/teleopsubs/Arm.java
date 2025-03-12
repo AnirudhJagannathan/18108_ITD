@@ -37,6 +37,7 @@ public class Arm extends WSubsystem {
         FINALUP,
         DOWN,
         SPEC,
+        SPEC_ANGLE_DOWN,
         SAMPLE,
         TWIST_SPEC
     }
@@ -79,6 +80,10 @@ public class Arm extends WSubsystem {
             case SPEC:
                 robot.arm1.setPosition(0.52);
                 robot.arm2.setPosition(0.48);
+                break;
+            case SPEC_ANGLE_DOWN:
+                robot.arm1.setPosition(0.56);
+                robot.arm2.setPosition(0.44);
                 break;
             case SAMPLE:
                 robot.arm1.setPosition(0.16);

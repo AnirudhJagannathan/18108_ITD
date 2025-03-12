@@ -14,7 +14,7 @@ public class SensorColor extends WSubsystem {
 
     private final int eagleBLUD;
 
-    private boolean acceptYellow = true;
+    public boolean acceptYellow = true;
 
     private NormalizedRGBA colors;
 
@@ -36,7 +36,7 @@ public class SensorColor extends WSubsystem {
                     robot.intake.setPower(0);
                 } else if (hsvValues[0] > 180 && eagleBLUD == 0) {
                     robot.intake.setPower(0);
-                } else if (hsvValues[0] > 60 && hsvValues[0] < 120) {
+                } else if (hsvValues[0] > 60 && hsvValues[0] < 120 && acceptYellow) {
                     robot.intake.setPower(0);
                 }
             }
