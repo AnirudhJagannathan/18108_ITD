@@ -313,7 +313,6 @@ public class BlueRight extends CommandOpMode {
                         new InstantCommand(() -> follower.setMaxPower(0.8)),
                         new ParallelCommandGroup(
                             new FollowPathCommand(follower, p0), // Move to submersible to deposit first spec
-                            new WaitCommand(400),
                             new MoveVSlidesAuto(-705, -50, 3),
                             new Extend(Claw.YawState.CENTER, FEDHES.FEDHESState.LESS_FRONT),
                             new MoveHSlidesAuto(400) // Reach into sub
@@ -330,8 +329,8 @@ public class BlueRight extends CommandOpMode {
                             new MoveVSlidesAuto(25, 0, 3),
                             new Transfer(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN),
                             new SequentialCommandGroup(
-                                    new RotateIntake(Intake.IntakeState.DOWN),
                                     new ParallelCommandGroup(
+                                            new RotateIntake(Intake.IntakeState.DOWN),
                                             new PowerIntakeColor(0.8, 0),
                                             new MoveHSlidesAuto(900)
                                     )
@@ -341,25 +340,31 @@ public class BlueRight extends CommandOpMode {
                         new InstantCommand(() -> follower.setMaxPower(1.0)),
                         new ParallelCommandGroup(
                                 new PowerIntake(0),
+                                new MoveHSlidesAuto(-25),
                                 new RotateIntake(Intake.IntakeState.UP),
-                                new FollowPathCommand(follower, p1) //Head to obs zone
-                                /*new SequentialCommandGroup(
+                                new FollowPathCommand(follower, p1, false)
+                                // Head to obs zone
+                                /* new SequentialCommandGroup(
                                         new MoveHSlidesAuto(-25),
                                         new PowerIntakeTime(1, 0.5),
                                         new WaitCommand(200),
                                         new ToggleClaw(Claw.ClawState.CLOSED),
                                         new WaitCommand(100),
                                         new Retract(Claw.YawState.CENTER)
-                                )*/
+                                ) */
                         ),
-                        new MoveHSlidesAuto(400),
-                        new PowerIntakeTime(-0.5, 0.5),
-                        new WaitCommand(200),
+                        new ParallelCommandGroup(
+                                new MoveHSlidesAuto(500),
+                                new PowerIntakeTime(-0.5, 0.5)
+                        ),
 
                         new ParallelCommandGroup(
                                 new PowerIntakeColor(0.8, 0),
-                                new MoveHSlidesAuto(900),
-                                new RotateIntake(Intake.IntakeState.DOWN),
+                                new SequentialCommandGroup(
+                                        new MoveHSlidesAuto(900),
+                                        new WaitCommand(200),
+                                        new RotateIntake(Intake.IntakeState.DOWN)
+                                ),
                                 new FollowPathCommand(follower, p2) //Head to obs zone
                                 /*new SequentialCommandGroup(
                                         new MoveHSlidesAuto(-25),
@@ -370,9 +375,7 @@ public class BlueRight extends CommandOpMode {
                                         new Retract(Claw.YawState.CENTER)
                                 )*/
                         ),
-
                         new ParallelCommandGroup(
-                                new PowerIntakeTime(-0.5, 0.5),
                                 new MoveHSlidesAuto(600),
                                 new RotateIntake(Intake.IntakeState.UP),
                                 new FollowPathCommand(follower, p3) //Head to obs zone
@@ -384,7 +387,8 @@ public class BlueRight extends CommandOpMode {
                                         new WaitCommand(100),
                                         new Retract(Claw.YawState.CENTER)
                                 )*/
-                        )
+                        ),
+                        new PowerIntakeTime(-0.5, 0.5)
 /*
                         //new ToggleClaw(Claw.ClawState.WIDE_OPEN),
 
