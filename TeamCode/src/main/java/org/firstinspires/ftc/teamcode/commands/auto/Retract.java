@@ -11,12 +11,12 @@ import org.firstinspires.ftc.teamcode.teleopsubs.Claw;
 import org.firstinspires.ftc.teamcode.teleopsubs.FEDHES;
 
 public class Retract extends SequentialCommandGroup {
-    public Retract(Claw.YawState yawState) {
+    public Retract(Claw.YawState yawState, Arm.ArmState armState) {
         super(
-                new ParallelCommandGroup(
-                        new RotateYaw(yawState),
+                new SequentialCommandGroup(
+                        new RotateArm(armState),
                         new RotateFEDHES(FEDHES.FEDHESState.BACK),
-                        new RotateArm(Arm.ArmState.UP)
+                        new RotateYaw(yawState)
                 )
         );
     }

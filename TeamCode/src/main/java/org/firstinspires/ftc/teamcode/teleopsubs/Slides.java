@@ -56,7 +56,7 @@ public class Slides extends WSubsystem {
 
 
     public void moveVSlidesPID(double targetPosition) {
-        PIDController control = new PIDController(4,0,0.15);
+        PIDController control = new PIDController(5,0,0.5);
         pos = targetPosition;
 
         double maxError = targetPosition - previousTarget;
@@ -234,6 +234,11 @@ public class Slides extends WSubsystem {
 
     public void setTargetPositionH(int targetPosition) {
         robot.hSlideActuactor.setTargetPosition(targetPosition);
+    }
+
+    public void setPower(double power) {
+        robot.slideLeft.setPower(power);
+        robot.slideRight.setPower(power);
     }
 
     public void setVCurrentPosition(double position) {

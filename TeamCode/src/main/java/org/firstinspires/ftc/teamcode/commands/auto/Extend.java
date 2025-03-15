@@ -15,11 +15,9 @@ import org.firstinspires.ftc.teamcode.teleopsubs.FEDHES;
 public class Extend extends SequentialCommandGroup {
     public Extend(Claw.YawState yawState, FEDHES.FEDHESState fedhesState) {
         super(
-                new ParallelCommandGroup(
-                        new RotateYaw(yawState),
-                        new RotateFEDHES(fedhesState),
-                        new RotateArm(Arm.ArmState.SPEC)
-                )
+                new RotateYaw(yawState),
+                new RotateFEDHES(fedhesState),
+                new RotateArm(Arm.ArmState.SPEC)
         );
     }
 }

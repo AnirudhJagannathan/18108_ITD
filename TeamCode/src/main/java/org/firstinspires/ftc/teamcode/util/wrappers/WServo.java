@@ -84,4 +84,8 @@ public class WServo implements Servo {
     public void scaleRange(double min, double max) {
         this.servo.scaleRange(min, max);
     }
+
+    public Servo getServo() {
+        return servo;
+    }
 }

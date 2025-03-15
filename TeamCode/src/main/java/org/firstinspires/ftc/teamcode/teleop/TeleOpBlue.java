@@ -30,7 +30,7 @@ import org.firstinspires.ftc.teamcode.teleopsubs.ITDRobot;
 import org.firstinspires.ftc.teamcode.teleopsubs.Intake;
 
 @TeleOp
-public class TeleOpMain extends CommandOpMode {
+public class TeleOpBlue extends CommandOpMode {
 
     private final RobotHardware hardware = RobotHardware.getInstance();
 
@@ -126,14 +126,10 @@ public class TeleOpMain extends CommandOpMode {
                                 new ParallelCommandGroup(
                                         new ToggleClaw(Claw.ClawState.CLOSED),
                                         new RotateYaw(Claw.YawState.CENTER),
-                                        new RotateArm(Arm.ArmState.SPEC)
+                                        new RotateArm(Arm.ArmState.UP)
                                 ),
                                 new WaitCommand(200).andThen(
-                                        new ParallelCommandGroup(
-                                                new RotateYaw(Claw.YawState.CENTER),
-                                                new RotateArm(Arm.ArmState.UP),
-                                                new RotateFEDHES(FEDHES.FEDHESState.BACK)
-                                        )
+                                        new RotateFEDHES(FEDHES.FEDHESState.BACK)
                                 ),
                                 new WaitCommand(hardware.fedhes.getState() == FEDHES.FEDHESState.FRONT ? 800 : 250).andThen(
                                         new RotateArm(Arm.ArmState.FINALUP)
@@ -196,7 +192,7 @@ public class TeleOpMain extends CommandOpMode {
                         )));
 
         gp2.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(() -> CommandScheduler.getInstance().schedule(new PowerIntake(INTAKE_POWER)));
+                .whenPressed(() -> CommandScheduler.getInstance().schedule(new PowerIntake(INTAKE_POWER / 2)));
         gp2.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                 .whenPressed(() -> CommandScheduler.getInstance().schedule(new PowerIntake(-INTAKE_POWER)));
         gp2.getGamepadButton(GamepadKeys.Button.X)
@@ -238,9 +234,9 @@ public class TeleOpMain extends CommandOpMode {
          */
 
         robot.mecanumDriving(
-                () -> gamepad1.left_stick_y,
-                () -> gamepad1.right_stick_x,
-                () -> gamepad1.left_stick_x
+                () -> 0.8 * gamepad1.left_stick_y,
+                () -> 0.8 * gamepad1.right_stick_x,
+                () -> 0.8 * gamepad1.left_stick_x
         );
 
         /*robot.fieldCentric(
@@ -255,16 +251,19 @@ public class TeleOpMain extends CommandOpMode {
                 if (Range.clip(gamepad2.right_stick_y, -1, 1) < -0.25) {
                     hardware.slides.setOffset(-75);
                     slidePos = SLIDE_HIGH;
-                    CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
+                    hardware.slides.setTargetPosition(slidePos);
+                    // CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                     slideState = SlideState.EXTEND;
                 } else if (gamepad2.right_stick_button) {
                     hardware.slides.setOffset(-75);
                     slidePos = SLIDE_SPEC_START;
-                    CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
+                    hardware.slides.setTargetPosition(slidePos);
+                    // CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                     slideState = SlideState.EXTEND;
                 } else if (gamepad2.left_stick_button) {
                     slidePos = SLIDE_NEAR_LOW;
-                    CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
+                    hardware.slides.setTargetPosition(slidePos);
+                    // CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                     slideState = SlideState.EXTEND;
                 }
                 break;
@@ -277,7 +276,8 @@ public class TeleOpMain extends CommandOpMode {
                             hardware.slides.setOffset(-25);
                             hardware.slideLeftActuator.setErrorTolerance(150);
                             hardware.slideRightActuator.setErrorTolerance(150);
-                            CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
+                            hardware.slides.setTargetPosition(slidePos);
+                            // CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                             slideState = SlideState.RETRACT;
                         }
                         if (gamepad2.right_stick_button) {
@@ -293,8 +293,15 @@ public class TeleOpMain extends CommandOpMode {
                         if (gamepad1.x) {
                             slidePos = SLIDE_SPEC_END;
                             slideState = SlideState.SPEC;
-                            CommandScheduler.getInstance().schedule(
+                            /* CommandScheduler.getInstance().schedule(
                                     new MoveVSlides(hardware, slidePos),
+                                    new WaitCommand(300).andThen(
+                                            new ToggleClaw(Claw.ClawState.WIDE_OPEN)
+                                    )
+                            );
+                             */
+                            hardware.slides.setTargetPosition(slidePos);
+                            CommandScheduler.getInstance().schedule(
                                     new WaitCommand(300).andThen(
                                             new ToggleClaw(Claw.ClawState.WIDE_OPEN)
                                     )
@@ -302,37 +309,43 @@ public class TeleOpMain extends CommandOpMode {
                         }
                         if (Range.clip(gamepad2.right_stick_y, -1, 1) < -0.25) {
                             slidePos = SLIDE_HIGH;
-                            CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
+                            hardware.slides.setTargetPosition(slidePos);
+                            // CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                         }
                         if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                             slidePos = SLIDE_LOW;
                             hardware.slides.setOffset(-25);
                             hardware.slideLeftActuator.setErrorTolerance(150);
                             hardware.slideRightActuator.setErrorTolerance(150);
-                            CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
+                            hardware.slides.setTargetPosition(slidePos);
+                            // CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                             slideState = SlideState.RETRACT;
                         }
                         if (gamepad1.left_stick_button) {
                             slidePos = SLIDE_NEAR_LOW;
-                            CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
+                            hardware.slides.setTargetPosition(slidePos);
+                            // CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                         }
                     }
                     else if (slidePos == SLIDE_NEAR_LOW) {
                         if (Range.clip(gamepad2.right_stick_y, -1, 1) < -0.25) {
                             slidePos = SLIDE_HIGH;
-                            CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
+                            hardware.slides.setTargetPosition(slidePos);
+                            // CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                         }
                         if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                             slidePos = SLIDE_LOW;
                             hardware.slides.setOffset(-25);
                             hardware.slideLeftActuator.setErrorTolerance(150);
                             hardware.slideRightActuator.setErrorTolerance(150);
-                            CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
+                            hardware.slides.setTargetPosition(slidePos);
+                            // CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                             slideState = SlideState.RETRACT;
                         }
                         if (gamepad2.right_stick_button) {
                             slidePos = SLIDE_SPEC_START;
-                            CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
+                            hardware.slides.setTargetPosition(slidePos);
+                            // CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                         }
                     }
                 }
@@ -343,7 +356,8 @@ public class TeleOpMain extends CommandOpMode {
                     hardware.slides.setOffset(-25);
                     hardware.slideLeftActuator.setErrorTolerance(150);
                     hardware.slideRightActuator.setErrorTolerance(150);
-                    CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
+                    hardware.slides.setTargetPosition(slidePos);
+                    // CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                     slideState = SlideState.RETRACT;
                 }
                 break;
@@ -358,12 +372,87 @@ public class TeleOpMain extends CommandOpMode {
 
         }
 
+
+        /* hardware.slides.moveVSlidesPID(slidePos);
+
+        switch (slideState) {
+            case START:
+                if (gamepad1.y || Range.clip(gamepad2.right_stick_y, -1, 1) < -0.25) {
+                    slidePos = SLIDE_HIGH;
+                    slideState = SlideState.EXTEND;
+                } else if (gamepad1.b || gamepad2.right_stick_button) {
+                    slidePos = SLIDE_SPEC_START;
+                    slideState = SlideState.EXTEND;
+                } else if (gamepad2.left_stick_button) {
+                    slidePos = SLIDE_NEAR_LOW;
+                    slideState = SlideState.EXTEND;
+                } else {
+                    slidePos = hardware.slides.getVSlidesPos();
+                }
+                break;
+            case EXTEND:
+                if (Math.abs(hardware.slides.getVSlidesPos() - slidePos) < 75) {
+                    slideTimer.reset();
+                    if (slidePos == SLIDE_HIGH) {
+                        if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
+                            slidePos = SLIDE_LOW;
+                            slideState = SlideState.RETRACT;
+                        }
+                        if (gamepad2.right_stick_button) {
+                            slidePos = SLIDE_SPEC_START;
+                        }
+                        if (gamepad1.left_stick_button) {
+                            slidePos = SLIDE_NEAR_LOW;
+                        }
+                    }
+                    else if (slidePos == SLIDE_SPEC_START) {
+                        if (gamepad1.x) {
+                            slidePos = SLIDE_SPEC_END;
+                            slideState = SlideState.SPEC;
+                        }
+                        if (Range.clip(gamepad2.right_stick_y, -1, 1) < -0.25)
+                            slidePos = SLIDE_HIGH;
+                        if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
+                            slidePos = SLIDE_LOW;
+                            slideState = SlideState.RETRACT;
+                        }
+                        if (gamepad1.left_stick_button)
+                            slidePos = SLIDE_NEAR_LOW;
+                    }
+                    else if (slidePos == SLIDE_NEAR_LOW) {
+                        if (Range.clip(gamepad2.right_stick_y, -1, 1) < -0.25)
+                            slidePos = SLIDE_HIGH;
+                        if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
+                            slidePos = SLIDE_LOW;
+                            slideState = SlideState.RETRACT;
+                        }
+                        if (gamepad2.right_stick_button)
+                            slidePos = SLIDE_SPEC_START;
+                    }
+                }
+                break;
+            case SPEC:
+                if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
+                    slidePos = SLIDE_LOW;
+                    slideState = SlideState.RETRACT;
+                }
+                break;
+            case RETRACT:
+                if (Math.abs(hardware.slides.getVSlidesPos() - SLIDE_LOW) < 150) {
+                    slideState = SlideState.START;
+                }
+                break;
+            default:
+                slideState = SlideState.START;
+        }
+         */
+
         hardware.slides.moveHSlides(() -> -gamepad2.left_stick_y);
 
         if (gamepad2.start)
-            hardware.spintake.skibUp();
+            hardware.fedhes.bludAdjust += 0.01;
         if (gamepad2.back)
-            hardware.spintake.skibDown();
+            hardware.fedhes.bludAdjust -= 0.01;
 
             //CommandScheduler.getInstance().schedule(new MoveHSlides(hardware, hardware.hSlideActuactor.getTargetPosition() - HSLIDE_INC));
 

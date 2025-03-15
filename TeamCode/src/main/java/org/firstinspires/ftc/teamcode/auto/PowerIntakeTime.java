@@ -5,8 +5,6 @@ import com.seattlesolvers.solverslib.command.CommandBase;
 
 import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
 
-import java.util.concurrent.TimeUnit;
-
 public class PowerIntakeTime extends CommandBase {
     private double power;
     private double time;
@@ -18,8 +16,8 @@ public class PowerIntakeTime extends CommandBase {
     }
 
     public void initialize() {
+        RobotHardware.getInstance().intake.setPower(-power);
         timer.reset();
-        RobotHardware.getInstance().spintake.intake(-power);
     }
 
     public boolean isFinished() {

@@ -31,6 +31,8 @@ public class MoveVSlidesAuto extends CommandBase {
         if ((Math.abs(target - instance.slideLeftActuator.getPosition()) < TOLERANCE
                 && Math.abs(target - instance.slideRightActuator.getPosition()) < TOLERANCE) || timer.time() >= time) {
             RobotHardware.getInstance().setFinished(true);
+            if (target > -25)
+                instance.slides.setPower(0);
             return true;
         }
         return false;

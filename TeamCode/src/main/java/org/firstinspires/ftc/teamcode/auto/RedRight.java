@@ -14,27 +14,22 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
-import com.seattlesolvers.solverslib.command.CommandScheduler;
 import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
 import com.seattlesolvers.solverslib.command.ParallelDeadlineGroup;
-import com.seattlesolvers.solverslib.command.ParallelRaceGroup;
 import com.seattlesolvers.solverslib.command.RunCommand;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
 
-import org.firstinspires.ftc.teamcode.R;
 import org.firstinspires.ftc.teamcode.commands.auto.Extend;
-import org.firstinspires.ftc.teamcode.commands.auto.MoveFEDHES;
 import org.firstinspires.ftc.teamcode.commands.auto.MoveHSlidesAuto;
 import org.firstinspires.ftc.teamcode.commands.auto.MoveVSlidesAuto;
 import org.firstinspires.ftc.teamcode.commands.auto.Retract;
 import org.firstinspires.ftc.teamcode.commands.auto.Transfer;
 import org.firstinspires.ftc.teamcode.commands.instant.PowerIntake;
 import org.firstinspires.ftc.teamcode.commands.instant.RotateArm;
-import org.firstinspires.ftc.teamcode.commands.instant.RotateFEDHES;
 import org.firstinspires.ftc.teamcode.commands.instant.RotateIntake;
 import org.firstinspires.ftc.teamcode.commands.instant.RotateYaw;
 import org.firstinspires.ftc.teamcode.commands.instant.ToggleClaw;
@@ -50,8 +45,10 @@ import org.firstinspires.ftc.teamcode.teleopsubs.Slides;
 
 import java.util.ArrayList;
 
+
 @Autonomous
-public class TestAuto extends CommandOpMode {
+public class RedRight extends CommandOpMode {
+
     FtcDashboard dashboard = FtcDashboard.getInstance();
 
     private Follower follower;
@@ -319,7 +316,7 @@ public class TestAuto extends CommandOpMode {
                         // Line 3
                         new BezierLine(
                                 new Point(8.5, 36, Point.CARTESIAN),
-                                new Point(31, 62, Point.CARTESIAN)
+                                new Point(31.5, 62, Point.CARTESIAN)
                         )
                 )
                 .setZeroPowerAccelerationMultiplier(5.5)
@@ -360,7 +357,7 @@ public class TestAuto extends CommandOpMode {
     @Override
     public void initialize() {
         super.reset();
-        hardware.setAlliance(0);
+        hardware.setAlliance(1);
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         hardware.init(hardwareMap);
@@ -421,7 +418,7 @@ public class TestAuto extends CommandOpMode {
                         new ParallelCommandGroup(
                                 new WaitCommand(50),
                                 // new RotateArm(Arm.ArmState.SPEC),
-                                new MoveVSlidesAuto(-930, -75, 2) // Hang spec
+                                new MoveVSlidesAuto(-940, -75, 2) // Hang spec
                         ),
                         new ToggleClaw(Claw.ClawState.WIDE_OPEN),
 
@@ -434,7 +431,7 @@ public class TestAuto extends CommandOpMode {
                                 // new InstantCommand(() -> hardware.fedhes.cutPower()),
                                 new SequentialCommandGroup(
                                         new ParallelDeadlineGroup(
-                                                new PowerIntakeColor(0.8, 0, 1.5),
+                                                new PowerIntakeColor(0.8, 1, 1.5),
                                                 new RotateIntake(Intake.IntakeState.DOWN),
                                                 new MoveHSlidesAuto(900, 1)
                                         )
@@ -442,6 +439,11 @@ public class TestAuto extends CommandOpMode {
                         ), // PMO BLUDMASTER
                         new InstantCommand(() -> follower.setMaxPower(1.0)),
                         new ParallelCommandGroup(
+                                new SequentialCommandGroup(
+                                        new PowerIntake(0.4),
+                                        new WaitCommand(50),
+                                        new PowerIntake(0)
+                                ),
                                 new RotateIntake(Intake.IntakeState.UP),
                                 new FollowPathCommand(follower, p1),
                                 new SequentialCommandGroup(
@@ -467,7 +469,7 @@ public class TestAuto extends CommandOpMode {
                         new ParallelCommandGroup(
                                 new ToggleClaw(Claw.ClawState.WIDE_OPEN),
                                 new SequentialCommandGroup(
-                                        new PowerIntakeColor(0.8, 0, 1.5),
+                                        new PowerIntakeColor(0.8, 1, 1.5),
                                         new ToggleClaw(Claw.ClawState.CLOSED),
                                         new Transfer(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN)
                                 )
@@ -530,7 +532,7 @@ public class TestAuto extends CommandOpMode {
                         new ParallelCommandGroup(
                                 new ToggleClaw(Claw.ClawState.WIDE_OPEN),
                                 new SequentialCommandGroup(
-                                        new PowerIntakeColor(0.8, 0, 1.5),
+                                        new PowerIntakeColor(0.8, 1, 1.5),
                                         new ToggleClaw(Claw.ClawState.CLOSED),
                                         new Transfer(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN)
                                 )
@@ -562,7 +564,7 @@ public class TestAuto extends CommandOpMode {
                         new ParallelCommandGroup(
                                 new ToggleClaw(Claw.ClawState.WIDE_OPEN),
                                 new SequentialCommandGroup(
-                                        new PowerIntakeColor(0.8, 0, 1.5),
+                                        new PowerIntakeColor(0.8, 1, 1.5),
                                         new ToggleClaw(Claw.ClawState.CLOSED),
                                         new Transfer(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN)
                                 )
@@ -587,6 +589,7 @@ public class TestAuto extends CommandOpMode {
                                 new Retract(Claw.YawState.CENTER, Arm.ArmState.UP),
                                 new WaitCommand(450)
                         ),
+                        new PowerIntake(0),
 
 
                         /**
@@ -624,7 +627,7 @@ public class TestAuto extends CommandOpMode {
                         new RotateYaw(Claw.YawState.CENTER),
                         new WaitCommand(100),
 
-                        new InstantCommand(() -> follower.setMaxPower(0.85)),
+                        new InstantCommand(() -> follower.setMaxPower(0.95)),
                         new ParallelCommandGroup(
                                 new ToggleClaw(Claw.ClawState.CLOSED),
                                 new FollowPathCommand(follower, p13, false),
@@ -734,6 +737,7 @@ public class TestAuto extends CommandOpMode {
                                 )
                         ),
                         new WaitCommand(100),
+
                         new MoveVSlidesAuto(-940, -75, 0.5),
                         new ToggleClaw(Claw.ClawState.WIDE_OPEN),
                         new RotateYaw(Claw.YawState.CENTER),

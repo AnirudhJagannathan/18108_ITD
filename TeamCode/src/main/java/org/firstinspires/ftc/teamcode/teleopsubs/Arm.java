@@ -33,13 +33,13 @@ public class Arm extends WSubsystem {
 
     public enum ArmState {
         UP,
-
         FINALUP,
         DOWN,
         SPEC,
         SPEC_ANGLE_DOWN,
         SAMPLE,
-        TWIST_SPEC
+        TWIST_SPEC,
+        VERTICAL
     }
 
     public Arm(HardwareMap hardwareMap) {
@@ -74,8 +74,8 @@ public class Arm extends WSubsystem {
                 robot.arm2.setPosition(0.94);
                 break;
             case FINALUP:
-                robot.arm1.setPosition(0.03);
-                robot.arm2.setPosition(0.97);
+                robot.arm1.setPosition(0.04);
+                robot.arm2.setPosition(0.96);
                 break;
             case SPEC:
                 robot.arm1.setPosition(0.52);
@@ -93,7 +93,15 @@ public class Arm extends WSubsystem {
                 robot.arm1.setPosition(0.87);
                 robot.arm2.setPosition(0.67);
                 break;
+            case VERTICAL:
+                robot.arm1.setPosition(0.32);
+                robot.arm2.setPosition(0.68);
         }
+    }
+
+    public void cutPower() {
+        ((PwmControl) robot.arm1.getServo()).setPwmDisable();
+        ((PwmControl) robot.arm2.getServo()).setPwmDisable();
     }
 
     public void bludArmMovement(ArmState state){

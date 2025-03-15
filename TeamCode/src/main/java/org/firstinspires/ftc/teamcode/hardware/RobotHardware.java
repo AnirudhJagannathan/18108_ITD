@@ -47,18 +47,18 @@ public class RobotHardware {
 
 
         public WServo arm1;
-        public Servo arm2;
-        public Servo intake1;
-        public Servo intake2;
+        public WServo arm2;
+        public WServo intake1;
+        public WServo intake2;
 
         public DcMotorEx leftFront, rightFront, leftBack, rightBack;
 
-        public Servo hypLeft;
-        public Servo hypRight;
+        public WServo hypLeft;
+        public WServo hypRight;
 
         public SimpleServo solversArm1, solversArm2;
-        public Servo clawServo;
-        public Servo yawServo;
+        public WServo clawServo;
+        public WServo yawServo;
 
         public Arm arm;
         public Claw claw;
@@ -85,6 +85,8 @@ public class RobotHardware {
         private boolean enabled;
         
         public boolean outtaking;
+
+        public boolean checkColor;
 
         private int alliance;
 
@@ -204,9 +206,10 @@ public class RobotHardware {
             color = new SensorColor(alliance, true);
             fedhes = new FEDHES(hardwareMap);
 
-            slides.reset();
+            // slides.reset();
 
             outtaking = false;
+            checkColor = true;
         }
 
     public int intSubscriber(Sensors.SensorType topic) {
@@ -235,14 +238,16 @@ public class RobotHardware {
     public void write() {
         slides.write();
         arm.write();
-        color.write();
+        if (checkColor)
+            color.write();
     }
 
     public void periodic() {
          slides.periodic();
          arm.periodic();
          claw.periodic();
-         color.periodic();
+         if (checkColor)
+             color.periodic();
     }
 
     public void clearBulkCache() {

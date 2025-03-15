@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleopsubs;
 
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -15,6 +16,9 @@ public class FEDHES extends WSubsystem { //You can see the pain in the TDHES
     private Servo hypRight;
 
     private FEDHESState state;
+
+
+    public double bludAdjust = 0;
 
     public FEDHES(HardwareMap hardwareMap) {
         hypLeft = hardwareMap.get(Servo.class, "hypLeft");
@@ -47,8 +51,8 @@ public class FEDHES extends WSubsystem { //You can see the pain in the TDHES
     public void updateState(FEDHESState state) {
         switch (state) {
             case DOWN:
-                robot.hypLeft.setPosition(0.35);
-                robot.hypRight.setPosition(0.65);
+                robot.hypLeft.setPosition(0.32 + bludAdjust);
+                robot.hypRight.setPosition(0.68 - bludAdjust);
                 this.state = state;
                 break;
             case BACK:
@@ -65,6 +69,11 @@ public class FEDHES extends WSubsystem { //You can see the pain in the TDHES
                 robot.hypLeft.setPosition(0.6);
                 robot.hypRight.setPosition(0.4);
         }
+    }
+
+    public void cutPower() {
+        ((PwmControl) robot.hypLeft.getServo()).setPwmDisable();
+        ((PwmControl) robot.hypRight.getServo()).setPwmDisable();
     }
 
     public FEDHESState getState() {

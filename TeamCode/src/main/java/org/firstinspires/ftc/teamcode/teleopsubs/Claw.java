@@ -25,7 +25,9 @@ public class Claw extends WSubsystem {
     public enum YawState {
         LEFT,
         RIGHT,
-        CENTER
+        CENTER,
+        FAR_LEFT,
+        FAR_RIGHT
     }
 
     public Claw(HardwareMap hardwareMap) {
@@ -66,13 +68,20 @@ public class Claw extends WSubsystem {
     public void yawUpdateState(YawState state) {
         switch (state) {
             case LEFT:
-                robot.yawServo.setPosition(0.40);
+                robot.yawServo.setPosition(0.38);
                 break;
             case RIGHT:
-                robot.yawServo.setPosition(0.60);
+                robot.yawServo.setPosition(0.6);
                 break;
             case CENTER:
-                robot.yawServo.setPosition(0.5);
+                robot.yawServo.setPosition(0.49);
+                break;
+            case FAR_LEFT:
+                robot.yawServo.setPosition(0.35);
+                break;
+            case FAR_RIGHT:
+                robot.yawServo.setPosition(0.65);
+                break;
         }
     }
 

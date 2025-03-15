@@ -87,8 +87,8 @@ public class Intake extends WSubsystem {
     }
 
     public void cutPower() {
-        ((PwmControl) robot.intake1).setPwmDisable();
-        ((PwmControl) robot.intake2).setPwmDisable();
+        ((PwmControl) robot.intake1.getServo()).setPwmDisable();
+        ((PwmControl) robot.intake2.getServo()).setPwmDisable();
     }
 
     public void flipMid() {
@@ -112,8 +112,6 @@ public class Intake extends WSubsystem {
                 break;
         }
     }
-
-
 
     @Override
     public void periodic() {
