@@ -27,7 +27,7 @@ public class MoveVSlidesAuto extends CommandBase {
     @Override
     public boolean isFinished() {
         RobotHardware instance = RobotHardware.getInstance();
-        int TOLERANCE = 50;
+        int TOLERANCE = 75;
         if ((Math.abs(target - instance.slideLeftActuator.getPosition()) < TOLERANCE
                 && Math.abs(target - instance.slideRightActuator.getPosition()) < TOLERANCE) || timer.time() >= time) {
             RobotHardware.getInstance().setFinished(true);

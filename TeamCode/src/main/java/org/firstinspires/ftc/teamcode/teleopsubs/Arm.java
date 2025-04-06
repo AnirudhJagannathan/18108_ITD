@@ -66,16 +66,16 @@ public class Arm extends WSubsystem {
     public void updateState(ArmState state) {
         switch (state) {
             case DOWN:
-                robot.arm1.setPosition(0.84);
-                robot.arm2.setPosition(0.16);
+                robot.arm1.setPosition(0.82);
+                robot.arm2.setPosition(0.18);
                 break;
             case UP:
-                robot.arm1.setPosition(0.06);
-                robot.arm2.setPosition(0.94);
+                robot.arm1.setPosition(0.05);
+                robot.arm2.setPosition(0.95);
                 break;
             case FINALUP:
-                robot.arm1.setPosition(0.04);
-                robot.arm2.setPosition(0.96);
+                robot.arm1.setPosition(0.02);
+                robot.arm2.setPosition(0.98);
                 break;
             case SPEC:
                 robot.arm1.setPosition(0.52);

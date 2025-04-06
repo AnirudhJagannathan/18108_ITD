@@ -29,7 +29,7 @@ public class MoveHSlidesAuto extends CommandBase {
         RobotHardware instance = RobotHardware.getInstance();
         if (target < 25 && Math.abs(target - instance.hSlideActuactor.getPosition()) < TOLERANCE || timer.time() >= time)
             instance.hSlides.setPower(0);
-        return Math.abs(target - instance.hSlideActuactor.getPosition()) < TOLERANCE;
+        return Math.abs(target - instance.hSlideActuactor.getPosition()) < TOLERANCE || timer.time() >= time;
     }
 
 }

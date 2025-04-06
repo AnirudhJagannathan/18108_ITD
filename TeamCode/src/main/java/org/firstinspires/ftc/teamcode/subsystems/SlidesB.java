@@ -48,7 +48,7 @@ public class SlidesB {
 
 
     public void moveVSlidesPID(double targetPosition) {
-        PIDController control = new PIDController(4,0,0.15);
+        PIDController control = new PIDController(6,0,0.4);
         double maxError = targetPosition - previousTarget;
         vSlidesA.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         vSlidesB.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

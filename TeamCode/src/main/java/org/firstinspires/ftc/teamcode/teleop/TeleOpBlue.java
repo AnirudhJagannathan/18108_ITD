@@ -56,12 +56,12 @@ public class TeleOpBlue extends CommandOpMode {
     final int SLIDE_BASE = 0;
     final int SLIDE_LOW = 50;
 
-    final int SLIDE_SPEC_START = -620;
-    final int SLIDE_SPEC_END = -900;
+    final int SLIDE_SPEC_START = -660;
+    final int SLIDE_SPEC_END = -940;
 
     final int SLIDE_NEAR_LOW = -100;
 
-    final int SLIDE_HIGH = -1650;
+    final int SLIDE_HIGH = -1575;
 
     double INTAKE_POWER = 1.0;
 
@@ -218,7 +218,7 @@ public class TeleOpBlue extends CommandOpMode {
                 telemetry.addData("Limelight Sample Color", "Blue");
             }
             telemetry.update();
-            hardware.slides.setOffset(-25);
+            // hardware.slides.setOffset(25);
         }
     }
 
@@ -273,20 +273,22 @@ public class TeleOpBlue extends CommandOpMode {
                     if (slidePos == SLIDE_HIGH) {
                         if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                             slidePos = SLIDE_LOW;
-                            hardware.slides.setOffset(-25);
-                            hardware.slideLeftActuator.setErrorTolerance(150);
-                            hardware.slideRightActuator.setErrorTolerance(150);
+                            hardware.slides.setOffset(10);
+                            // hardware.slideLeftActuator.setErrorTolerance(150);
+                            // hardware.slideRightActuator.setErrorTolerance(150);
                             hardware.slides.setTargetPosition(slidePos);
                             // CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                             slideState = SlideState.RETRACT;
                         }
                         if (gamepad2.right_stick_button) {
                             slidePos = SLIDE_SPEC_START;
-                            CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
+                            hardware.slides.setTargetPosition(slidePos);
+                            // CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                         }
                         if (gamepad1.left_stick_button) {
                             slidePos = SLIDE_NEAR_LOW;
-                            CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
+                            hardware.slides.setTargetPosition(slidePos);
+                            // CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                         }
                     }
                     else if (slidePos == SLIDE_SPEC_START) {
@@ -314,9 +316,9 @@ public class TeleOpBlue extends CommandOpMode {
                         }
                         if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                             slidePos = SLIDE_LOW;
-                            hardware.slides.setOffset(-25);
-                            hardware.slideLeftActuator.setErrorTolerance(150);
-                            hardware.slideRightActuator.setErrorTolerance(150);
+                            hardware.slides.setOffset(10);
+                            // hardware.slideLeftActuator.setErrorTolerance(150);
+                            // hardware.slideRightActuator.setErrorTolerance(150);
                             hardware.slides.setTargetPosition(slidePos);
                             // CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                             slideState = SlideState.RETRACT;
@@ -335,7 +337,7 @@ public class TeleOpBlue extends CommandOpMode {
                         }
                         if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                             slidePos = SLIDE_LOW;
-                            hardware.slides.setOffset(-25);
+                            hardware.slides.setOffset(10);
                             hardware.slideLeftActuator.setErrorTolerance(150);
                             hardware.slideRightActuator.setErrorTolerance(150);
                             hardware.slides.setTargetPosition(slidePos);
@@ -353,9 +355,9 @@ public class TeleOpBlue extends CommandOpMode {
             case SPEC:
                 if (Range.clip(gamepad2.right_stick_y, -1, 1) > 0.25) {
                     slidePos = SLIDE_LOW;
-                    hardware.slides.setOffset(-25);
-                    hardware.slideLeftActuator.setErrorTolerance(150);
-                    hardware.slideRightActuator.setErrorTolerance(150);
+                    hardware.slides.setOffset(10);
+                    // hardware.slideLeftActuator.setErrorTolerance(150);
+                    // hardware.slideRightActuator.setErrorTolerance(150);
                     hardware.slides.setTargetPosition(slidePos);
                     // CommandScheduler.getInstance().schedule(new MoveVSlides(hardware, slidePos));
                     slideState = SlideState.RETRACT;
@@ -363,7 +365,7 @@ public class TeleOpBlue extends CommandOpMode {
                 break;
             case RETRACT:
                 if (Math.abs(hardware.slides.getVSlidesPos() - SLIDE_LOW) < 75) {
-                    hardware.slideLeftActuator.setErrorTolerance(75);
+                    hardware.slideLeftActuator.setErrorTolerance(50);
                     slideState = SlideState.START;
                 }
                 break;
@@ -505,6 +507,7 @@ public class TeleOpBlue extends CommandOpMode {
         telemetry.addData("arm2", hardware.arm2.getPosition());
         telemetry.addData("tx", hardware.getTx());
         telemetry.addData("slideOffset", hardware.slideLeftActuator.getOffset());
+        telemetry.addData("Measured pos", hardware.slideLeftActuator.getPosition() + hardware.slideLeftActuator.getOffset());
         telemetry.update();
 
         CommandScheduler.getInstance().run();

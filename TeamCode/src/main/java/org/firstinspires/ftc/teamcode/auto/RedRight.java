@@ -13,6 +13,7 @@ import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
@@ -24,6 +25,7 @@ import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
 
 import org.firstinspires.ftc.teamcode.commands.auto.Extend;
+import org.firstinspires.ftc.teamcode.commands.auto.MoveFEDHES;
 import org.firstinspires.ftc.teamcode.commands.auto.MoveHSlidesAuto;
 import org.firstinspires.ftc.teamcode.commands.auto.MoveVSlidesAuto;
 import org.firstinspires.ftc.teamcode.commands.auto.Retract;
@@ -112,6 +114,8 @@ public class RedRight extends CommandOpMode {
     private boolean startHeld = false;
     private boolean backHeld = false;
 
+    private ElapsedTime timer;
+
 
     private final ArrayList<PathChain> paths = new ArrayList<>();
     PathChain pathChain = new PathChain();
@@ -160,7 +164,7 @@ public class RedRight extends CommandOpMode {
                         new BezierCurve(
                                 new Point(37.4, intakeRegions[intakeRegion], Point.CARTESIAN),
                                 new Point(20, 52.638, Point.CARTESIAN),
-                                new Point(24, 25.538, Point.CARTESIAN)
+                                new Point(24, 24.538, Point.CARTESIAN)
                         )
                 )
                 .setZeroPowerAccelerationMultiplier(4)
@@ -271,7 +275,7 @@ public class RedRight extends CommandOpMode {
                         // Line 9
                         new BezierLine(
                                 new Point(24, 15.759, Point.CARTESIAN),
-                                new Point(11, 40, Point.CARTESIAN)
+                                new Point(11, 36, Point.CARTESIAN)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(-25), Math.toRadians(30))
@@ -281,8 +285,8 @@ public class RedRight extends CommandOpMode {
                 .addPath(
                         // Line 9
                         new BezierLine(
-                                new Point(11, 40, Point.CARTESIAN),
-                                new Point(6.5, 40, Point.CARTESIAN)
+                                new Point(11, 36, Point.CARTESIAN),
+                                new Point(6.5, 36, Point.CARTESIAN)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(30), Math.toRadians(30))
@@ -292,7 +296,7 @@ public class RedRight extends CommandOpMode {
                 .addPath(
                         // Line 3
                         new BezierLine(
-                                new Point(6.5, 40, Point.CARTESIAN),
+                                new Point(6.5, 36, Point.CARTESIAN),
                                 new Point(31, 62, Point.CARTESIAN)
                         )
                 )
@@ -377,9 +381,9 @@ public class RedRight extends CommandOpMode {
         hardware.color.acceptYellow = false;
 
         schedule(
+                new MoveFEDHES(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN, Arm.ArmState.SPEC),
                 new RotateIntake(Intake.IntakeState.UP),
-                new ToggleClaw(Claw.ClawState.CLOSED),
-                new RotateYaw(Claw.YawState.CENTER)
+                new ToggleClaw(Claw.ClawState.CLOSED)
         );
 
         while (!isStarted()) {
@@ -399,8 +403,10 @@ public class RedRight extends CommandOpMode {
             telemetry.addData("intakeRegion", intakeRegion);
             telemetry.update();
 
-            //telemetry.addData("tx", hardware.limelight.getLatestResult().getTx());
-            //telemetry.update();
+            timer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+
+            // telemetry.addData("tx", hardware.limelight.getLatestResult().getTx());
+            // telemetry.update();
         }
 
         buildPaths();
@@ -411,16 +417,17 @@ public class RedRight extends CommandOpMode {
                         new InstantCommand(() -> follower.setMaxPower(0.8)),
                         new ParallelCommandGroup(
                                 new FollowPathCommand(follower, p0), // Move to submersible to deposit first spec
-                                new MoveVSlidesAuto(-650, -50, 2),
+                                new MoveVSlidesAuto(-650, -75, 2),
                                 new Extend(Claw.YawState.CENTER, FEDHES.FEDHESState.LESS_FRONT),
                                 new MoveHSlidesAuto(500, 1) // Reach into sub
                         ),
                         new ParallelCommandGroup(
                                 new WaitCommand(50),
                                 // new RotateArm(Arm.ArmState.SPEC),
-                                new MoveVSlidesAuto(-940, -75, 2) // Hang spec
+                                new MoveVSlidesAuto(-930, -75, 2) // Hang spec
                         ),
                         new ToggleClaw(Claw.ClawState.WIDE_OPEN),
+                        new WaitCommand(200),
 
                         // Deposit FIRST SAMPLE into obs zone
                         new ParallelCommandGroup(
@@ -432,6 +439,7 @@ public class RedRight extends CommandOpMode {
                                 new SequentialCommandGroup(
                                         new ParallelDeadlineGroup(
                                                 new PowerIntakeColor(0.8, 1, 1.5),
+                                                new WaitCommand(150),
                                                 new RotateIntake(Intake.IntakeState.DOWN),
                                                 new MoveHSlidesAuto(900, 1)
                                         )
@@ -441,7 +449,7 @@ public class RedRight extends CommandOpMode {
                         new ParallelCommandGroup(
                                 new SequentialCommandGroup(
                                         new PowerIntake(0.4),
-                                        new WaitCommand(50),
+                                        new WaitCommand(350),
                                         new PowerIntake(0)
                                 ),
                                 new RotateIntake(Intake.IntakeState.UP),
@@ -452,13 +460,12 @@ public class RedRight extends CommandOpMode {
                                         new ToggleClaw(Claw.ClawState.WIDE_OPEN)
                                 )
                         ),
-                        new WaitCommand(200),
 
                         // TRANSFER
                         new SequentialCommandGroup(
-                                new WaitCommand(200),
+                                new WaitCommand(300),
                                 new ToggleClaw(Claw.ClawState.CLOSED),
-                                new WaitCommand(100),
+                                new WaitCommand(200),
                                 new ParallelCommandGroup(
                                         new Retract(Claw.YawState.CENTER, Arm.ArmState.UP),
                                         new RotateIntake(Intake.IntakeState.DOWN),
@@ -470,11 +477,12 @@ public class RedRight extends CommandOpMode {
                                 new ToggleClaw(Claw.ClawState.WIDE_OPEN),
                                 new SequentialCommandGroup(
                                         new PowerIntakeColor(0.8, 1, 1.5),
+                                        new WaitCommand(150),
                                         new ToggleClaw(Claw.ClawState.CLOSED),
                                         new Transfer(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN)
                                 )
                         ),
-                        new WaitCommand(250),
+                        new WaitCommand(300),
 
                         /* new SequentialCommandGroup(
                                 new PowerIntake(0),
@@ -519,9 +527,9 @@ public class RedRight extends CommandOpMode {
                         // TRANSFER
                         new SequentialCommandGroup(
                                 new PowerIntake(-1.0),
-                                new WaitCommand(200),
+                                new WaitCommand(300),
                                 new ToggleClaw(Claw.ClawState.CLOSED),
-                                new WaitCommand(100),
+                                new WaitCommand(200),
                                 new ParallelCommandGroup(
                                         new Retract(Claw.YawState.CENTER, Arm.ArmState.UP),
                                         new RotateIntake(Intake.IntakeState.DOWN),
@@ -533,11 +541,12 @@ public class RedRight extends CommandOpMode {
                                 new ToggleClaw(Claw.ClawState.WIDE_OPEN),
                                 new SequentialCommandGroup(
                                         new PowerIntakeColor(0.8, 1, 1.5),
+                                        new WaitCommand(150),
                                         new ToggleClaw(Claw.ClawState.CLOSED),
                                         new Transfer(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN)
                                 )
                         ),
-                        new WaitCommand(250),
+                        new WaitCommand(300),
 
                         // 2ND
                         new ParallelCommandGroup(
@@ -551,13 +560,13 @@ public class RedRight extends CommandOpMode {
                         // TRANSFER
                         new SequentialCommandGroup(
                                 new PowerIntake(-1.0),
-                                new WaitCommand(200),
+                                new WaitCommand(300),
                                 new ToggleClaw(Claw.ClawState.CLOSED),
-                                new WaitCommand(100),
+                                new WaitCommand(200),
                                 new ParallelCommandGroup(
                                         new Retract(Claw.YawState.CENTER, Arm.ArmState.UP),
                                         new RotateIntake(Intake.IntakeState.DOWN),
-                                        new MoveHSlidesAuto(800, 2)
+                                        new MoveHSlidesAuto(750, 2)
                                 ),
                                 new WaitCommand(50)
                         ),
@@ -565,6 +574,7 @@ public class RedRight extends CommandOpMode {
                                 new ToggleClaw(Claw.ClawState.WIDE_OPEN),
                                 new SequentialCommandGroup(
                                         new PowerIntakeColor(0.8, 1, 1.5),
+                                        new WaitCommand(150),
                                         new ToggleClaw(Claw.ClawState.CLOSED),
                                         new Transfer(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN)
                                 )
@@ -589,7 +599,6 @@ public class RedRight extends CommandOpMode {
                                 new Retract(Claw.YawState.CENTER, Arm.ArmState.UP),
                                 new WaitCommand(450)
                         ),
-                        new PowerIntake(0),
 
 
                         /**
@@ -606,10 +615,10 @@ public class RedRight extends CommandOpMode {
 
                         new WaitCommand(350),
                         new ToggleClaw(Claw.ClawState.CLOSED),
-                        new WaitCommand(50),
+                        new WaitCommand(200),
 
 
-                        new InstantCommand(() -> follower.setMaxPower(1)),
+                        new InstantCommand(() -> follower.setMaxPower(0.9)),
                         new ParallelCommandGroup(
                                 new RotateIntake(Intake.IntakeState.UP),
                                 new FollowPathCommand(follower, p12, true),
@@ -627,7 +636,7 @@ public class RedRight extends CommandOpMode {
                         new RotateYaw(Claw.YawState.CENTER),
                         new WaitCommand(100),
 
-                        new InstantCommand(() -> follower.setMaxPower(0.95)),
+                        new InstantCommand(() -> follower.setMaxPower(0.8)),
                         new ParallelCommandGroup(
                                 new ToggleClaw(Claw.ClawState.CLOSED),
                                 new FollowPathCommand(follower, p13, false),
@@ -644,10 +653,10 @@ public class RedRight extends CommandOpMode {
                         ),
                         new WaitCommand(50),
                         new ToggleClaw(Claw.ClawState.CLOSED),
-                        new WaitCommand(50),
+                        new WaitCommand(100),
 
 
-                        new InstantCommand(() -> follower.setMaxPower(1)),
+                        new InstantCommand(() -> follower.setMaxPower(0.9)),
                         new ParallelCommandGroup(
                                 new RotateIntake(Intake.IntakeState.UP),
                                 new FollowPathCommand(follower, p14, true),
@@ -665,7 +674,7 @@ public class RedRight extends CommandOpMode {
                         new RotateYaw(Claw.YawState.CENTER),
                         new WaitCommand(100),
 
-                        new InstantCommand(() -> follower.setMaxPower(0.85)),
+                        new InstantCommand(() -> follower.setMaxPower(0.8)),
                         new ParallelCommandGroup(
                                 new ToggleClaw(Claw.ClawState.CLOSED),
                                 new FollowPathCommand(follower, p13, false),
@@ -682,10 +691,10 @@ public class RedRight extends CommandOpMode {
                         ),
                         new WaitCommand(50),
                         new ToggleClaw(Claw.ClawState.CLOSED),
-                        new WaitCommand(50),
+                        new WaitCommand(100),
 
 
-                        new InstantCommand(() -> follower.setMaxPower(1)),
+                        new InstantCommand(() -> follower.setMaxPower(0.9)),
                         new ParallelCommandGroup(
                                 new RotateIntake(Intake.IntakeState.UP),
                                 new FollowPathCommand(follower, p14, true),
@@ -704,7 +713,7 @@ public class RedRight extends CommandOpMode {
                         new WaitCommand(100),
 
 
-                        new InstantCommand(() -> follower.setMaxPower(0.85)),
+                        new InstantCommand(() -> follower.setMaxPower(0.8)),
                         new ParallelCommandGroup(
                                 new ToggleClaw(Claw.ClawState.CLOSED),
                                 new FollowPathCommand(follower, p13, false),
@@ -721,10 +730,10 @@ public class RedRight extends CommandOpMode {
                         ),
                         new WaitCommand(50),
                         new ToggleClaw(Claw.ClawState.CLOSED),
-                        new WaitCommand(50),
+                        new WaitCommand(100),
 
 
-                        new InstantCommand(() -> follower.setMaxPower(1)),
+                        new InstantCommand(() -> follower.setMaxPower(0.9)),
                         new ParallelCommandGroup(
                                 new RotateIntake(Intake.IntakeState.UP),
                                 new FollowPathCommand(follower, p14, true),
@@ -737,14 +746,13 @@ public class RedRight extends CommandOpMode {
                                 )
                         ),
                         new WaitCommand(100),
-
                         new MoveVSlidesAuto(-940, -75, 0.5),
                         new ToggleClaw(Claw.ClawState.WIDE_OPEN),
                         new RotateYaw(Claw.YawState.CENTER),
                         new WaitCommand(100),
 
 
-                        new InstantCommand(() -> follower.setMaxPower(0.85)),
+                        new InstantCommand(() -> follower.setMaxPower(0.8)),
                         new ParallelCommandGroup(
                                 new ToggleClaw(Claw.ClawState.CLOSED),
                                 new FollowPathCommand(follower, p13, false),
@@ -776,5 +784,10 @@ public class RedRight extends CommandOpMode {
         telemetry.addData("currentPath", follower.getCurrentPath());
         // telemetry.addData("tx", hardware.limelight.getLatestResult().getTx());
         telemetry.update();
+
+        if (timer.time() >= 29.5)
+            schedule(
+                    new MoveFEDHES(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN, Arm.ArmState.SPEC)
+            );
     }
 }

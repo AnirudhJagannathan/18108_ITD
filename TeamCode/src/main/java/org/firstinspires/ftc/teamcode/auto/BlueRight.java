@@ -165,7 +165,7 @@ public class BlueRight extends CommandOpMode {
                         new BezierCurve(
                                 new Point(37.4, intakeRegions[intakeRegion], Point.CARTESIAN),
                                 new Point(20, 52.638, Point.CARTESIAN),
-                                new Point(24, 25.538, Point.CARTESIAN)
+                                new Point(24, 24.538, Point.CARTESIAN)
                         )
                 )
                 .setZeroPowerAccelerationMultiplier(4)
@@ -276,7 +276,7 @@ public class BlueRight extends CommandOpMode {
                         // Line 9
                         new BezierLine(
                                 new Point(24, 15.759, Point.CARTESIAN),
-                                new Point(11, 40, Point.CARTESIAN)
+                                new Point(11, 36, Point.CARTESIAN)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(-25), Math.toRadians(30))
@@ -286,8 +286,8 @@ public class BlueRight extends CommandOpMode {
                 .addPath(
                         // Line 9
                         new BezierLine(
-                                new Point(11, 40, Point.CARTESIAN),
-                                new Point(6.5, 40, Point.CARTESIAN)
+                                new Point(11, 36, Point.CARTESIAN),
+                                new Point(6.5, 36, Point.CARTESIAN)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(30), Math.toRadians(30))
@@ -297,7 +297,7 @@ public class BlueRight extends CommandOpMode {
                 .addPath(
                         // Line 3
                         new BezierLine(
-                                new Point(6.5, 40, Point.CARTESIAN),
+                                new Point(6.5, 36, Point.CARTESIAN),
                                 new Point(31, 62, Point.CARTESIAN)
                         )
                 )
@@ -382,9 +382,9 @@ public class BlueRight extends CommandOpMode {
         hardware.color.acceptYellow = false;
 
         schedule(
+                new MoveFEDHES(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN, Arm.ArmState.SPEC),
                 new RotateIntake(Intake.IntakeState.UP),
-                new ToggleClaw(Claw.ClawState.CLOSED),
-                new RotateYaw(Claw.YawState.CENTER)
+                new ToggleClaw(Claw.ClawState.CLOSED)
         );
 
         while (!isStarted()) {
@@ -416,7 +416,7 @@ public class BlueRight extends CommandOpMode {
                         new InstantCommand(() -> follower.setMaxPower(0.8)),
                         new ParallelCommandGroup(
                                 new FollowPathCommand(follower, p0), // Move to submersible to deposit first spec
-                                new MoveVSlidesAuto(-650, -50, 2),
+                                new MoveVSlidesAuto(-650, -75, 2),
                                 new Extend(Claw.YawState.CENTER, FEDHES.FEDHESState.LESS_FRONT),
                                 new MoveHSlidesAuto(500, 1) // Reach into sub
                         ),
@@ -426,6 +426,7 @@ public class BlueRight extends CommandOpMode {
                                 new MoveVSlidesAuto(-930, -75, 2) // Hang spec
                         ),
                         new ToggleClaw(Claw.ClawState.WIDE_OPEN),
+                        new WaitCommand(200),
 
                         // Deposit FIRST SAMPLE into obs zone
                         new ParallelCommandGroup(
@@ -437,6 +438,7 @@ public class BlueRight extends CommandOpMode {
                                 new SequentialCommandGroup(
                                         new ParallelDeadlineGroup(
                                                 new PowerIntakeColor(0.8, 0, 1.5),
+                                                new WaitCommand(150),
                                                 new RotateIntake(Intake.IntakeState.DOWN),
                                                 new MoveHSlidesAuto(900, 1)
                                         )
@@ -444,6 +446,11 @@ public class BlueRight extends CommandOpMode {
                         ), // PMO BLUDMASTER
                         new InstantCommand(() -> follower.setMaxPower(1.0)),
                         new ParallelCommandGroup(
+                                new SequentialCommandGroup(
+                                        new PowerIntake(0.4),
+                                        new WaitCommand(350),
+                                        new PowerIntake(0)
+                                ),
                                 new RotateIntake(Intake.IntakeState.UP),
                                 new FollowPathCommand(follower, p1),
                                 new SequentialCommandGroup(
@@ -452,13 +459,12 @@ public class BlueRight extends CommandOpMode {
                                         new ToggleClaw(Claw.ClawState.WIDE_OPEN)
                                 )
                         ),
-                        new WaitCommand(200),
 
                         // TRANSFER
                         new SequentialCommandGroup(
-                                new WaitCommand(200),
+                                new WaitCommand(300),
                                 new ToggleClaw(Claw.ClawState.CLOSED),
-                                new WaitCommand(100),
+                                new WaitCommand(200),
                                 new ParallelCommandGroup(
                                         new Retract(Claw.YawState.CENTER, Arm.ArmState.UP),
                                         new RotateIntake(Intake.IntakeState.DOWN),
@@ -470,11 +476,12 @@ public class BlueRight extends CommandOpMode {
                                 new ToggleClaw(Claw.ClawState.WIDE_OPEN),
                                 new SequentialCommandGroup(
                                         new PowerIntakeColor(0.8, 0, 1.5),
+                                        new WaitCommand(150),
                                         new ToggleClaw(Claw.ClawState.CLOSED),
                                         new Transfer(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN)
                                 )
                         ),
-                        new WaitCommand(250),
+                        new WaitCommand(300),
 
                         /* new SequentialCommandGroup(
                                 new PowerIntake(0),
@@ -519,9 +526,9 @@ public class BlueRight extends CommandOpMode {
                         // TRANSFER
                         new SequentialCommandGroup(
                                 new PowerIntake(-1.0),
-                                new WaitCommand(200),
+                                new WaitCommand(300),
                                 new ToggleClaw(Claw.ClawState.CLOSED),
-                                new WaitCommand(100),
+                                new WaitCommand(200),
                                 new ParallelCommandGroup(
                                         new Retract(Claw.YawState.CENTER, Arm.ArmState.UP),
                                         new RotateIntake(Intake.IntakeState.DOWN),
@@ -533,11 +540,12 @@ public class BlueRight extends CommandOpMode {
                                 new ToggleClaw(Claw.ClawState.WIDE_OPEN),
                                 new SequentialCommandGroup(
                                         new PowerIntakeColor(0.8, 0, 1.5),
+                                        new WaitCommand(150),
                                         new ToggleClaw(Claw.ClawState.CLOSED),
                                         new Transfer(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN)
                                 )
                         ),
-                        new WaitCommand(250),
+                        new WaitCommand(300),
 
                         // 2ND
                         new ParallelCommandGroup(
@@ -551,13 +559,13 @@ public class BlueRight extends CommandOpMode {
                         // TRANSFER
                         new SequentialCommandGroup(
                                 new PowerIntake(-1.0),
-                                new WaitCommand(200),
+                                new WaitCommand(300),
                                 new ToggleClaw(Claw.ClawState.CLOSED),
-                                new WaitCommand(100),
+                                new WaitCommand(200),
                                 new ParallelCommandGroup(
                                         new Retract(Claw.YawState.CENTER, Arm.ArmState.UP),
                                         new RotateIntake(Intake.IntakeState.DOWN),
-                                        new MoveHSlidesAuto(800, 2)
+                                        new MoveHSlidesAuto(750, 2)
                                 ),
                                 new WaitCommand(50)
                         ),
@@ -565,6 +573,7 @@ public class BlueRight extends CommandOpMode {
                                 new ToggleClaw(Claw.ClawState.WIDE_OPEN),
                                 new SequentialCommandGroup(
                                         new PowerIntakeColor(0.8, 0, 1.5),
+                                        new WaitCommand(150),
                                         new ToggleClaw(Claw.ClawState.CLOSED),
                                         new Transfer(Claw.YawState.CENTER, FEDHES.FEDHESState.DOWN)
                                 )
@@ -605,10 +614,10 @@ public class BlueRight extends CommandOpMode {
 
                         new WaitCommand(350),
                         new ToggleClaw(Claw.ClawState.CLOSED),
-                        new WaitCommand(50),
+                        new WaitCommand(200),
 
 
-                        new InstantCommand(() -> follower.setMaxPower(1)),
+                        new InstantCommand(() -> follower.setMaxPower(0.9)),
                         new ParallelCommandGroup(
                                 new RotateIntake(Intake.IntakeState.UP),
                                 new FollowPathCommand(follower, p12, true),
@@ -626,7 +635,7 @@ public class BlueRight extends CommandOpMode {
                         new RotateYaw(Claw.YawState.CENTER),
                         new WaitCommand(100),
 
-                        new InstantCommand(() -> follower.setMaxPower(0.95)),
+                        new InstantCommand(() -> follower.setMaxPower(0.8)),
                         new ParallelCommandGroup(
                                 new ToggleClaw(Claw.ClawState.CLOSED),
                                 new FollowPathCommand(follower, p13, false),
@@ -643,10 +652,10 @@ public class BlueRight extends CommandOpMode {
                         ),
                         new WaitCommand(50),
                         new ToggleClaw(Claw.ClawState.CLOSED),
-                        new WaitCommand(50),
+                        new WaitCommand(100),
 
 
-                        new InstantCommand(() -> follower.setMaxPower(1)),
+                        new InstantCommand(() -> follower.setMaxPower(0.9)),
                         new ParallelCommandGroup(
                                 new RotateIntake(Intake.IntakeState.UP),
                                 new FollowPathCommand(follower, p14, true),
@@ -664,7 +673,7 @@ public class BlueRight extends CommandOpMode {
                         new RotateYaw(Claw.YawState.CENTER),
                         new WaitCommand(100),
 
-                        new InstantCommand(() -> follower.setMaxPower(0.95)),
+                        new InstantCommand(() -> follower.setMaxPower(0.8)),
                         new ParallelCommandGroup(
                                 new ToggleClaw(Claw.ClawState.CLOSED),
                                 new FollowPathCommand(follower, p13, false),
@@ -681,10 +690,10 @@ public class BlueRight extends CommandOpMode {
                         ),
                         new WaitCommand(50),
                         new ToggleClaw(Claw.ClawState.CLOSED),
-                        new WaitCommand(50),
+                        new WaitCommand(100),
 
 
-                        new InstantCommand(() -> follower.setMaxPower(1)),
+                        new InstantCommand(() -> follower.setMaxPower(0.9)),
                         new ParallelCommandGroup(
                                 new RotateIntake(Intake.IntakeState.UP),
                                 new FollowPathCommand(follower, p14, true),
@@ -703,7 +712,7 @@ public class BlueRight extends CommandOpMode {
                         new WaitCommand(100),
 
 
-                        new InstantCommand(() -> follower.setMaxPower(0.95)),
+                        new InstantCommand(() -> follower.setMaxPower(0.8)),
                         new ParallelCommandGroup(
                                 new ToggleClaw(Claw.ClawState.CLOSED),
                                 new FollowPathCommand(follower, p13, false),
@@ -720,10 +729,10 @@ public class BlueRight extends CommandOpMode {
                         ),
                         new WaitCommand(50),
                         new ToggleClaw(Claw.ClawState.CLOSED),
-                        new WaitCommand(50),
+                        new WaitCommand(100),
 
 
-                        new InstantCommand(() -> follower.setMaxPower(1)),
+                        new InstantCommand(() -> follower.setMaxPower(0.9)),
                         new ParallelCommandGroup(
                                 new RotateIntake(Intake.IntakeState.UP),
                                 new FollowPathCommand(follower, p14, true),
@@ -742,7 +751,7 @@ public class BlueRight extends CommandOpMode {
                         new WaitCommand(100),
 
 
-                        new InstantCommand(() -> follower.setMaxPower(0.95)),
+                        new InstantCommand(() -> follower.setMaxPower(0.8)),
                         new ParallelCommandGroup(
                                 new ToggleClaw(Claw.ClawState.CLOSED),
                                 new FollowPathCommand(follower, p13, false),

@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.configuration.LynxConstants;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.profile.ProfileConstraints;
 import org.firstinspires.ftc.teamcode.teleopsubs.SensorColor;
 import org.firstinspires.ftc.teamcode.teleopsubs.Arm;
 import org.firstinspires.ftc.teamcode.teleopsubs.Claw;
@@ -168,19 +169,21 @@ public class RobotHardware {
                     () -> intSubscriber(Sensors.SensorType.SLIDE_LEFT_ENC), slideLeft)
                     .setPIDController(new PIDController(0.006 , 0.0, 0.0004))
                     .setFeedforward(WActuatorGroup.FeedforwardMode.CONSTANT, 0.0)
-//                .setMotionProfile(0, new ProfileConstraints(1000, 5000, 2000))
-                    .setErrorTolerance(50);
+                    //.setMotionProfile(0, new ProfileConstraints(1000, 5000, 2000))
+                    .setTargetPositionOffset(-50)
+                    .setErrorTolerance(75);
 
             this.slideRightActuator = new WActuatorGroup(
                     () -> intSubscriber(Sensors.SensorType.SLIDE_RIGHT_ENC), slideRight)
                     .setPIDController(new PIDController(0.006, 0.0, 0.0004))
                     .setFeedforward(WActuatorGroup.FeedforwardMode.CONSTANT, 0.0)
-//                .setMotionProfile(0, new ProfileConstraints(1000, 5000, 2000))
-                    .setErrorTolerance(50);
+                    //.setMotionProfile(0, new ProfileConstraints(1000, 5000, 2000))
+                    .setTargetPositionOffset(-50)
+                    .setErrorTolerance(75);
 
             this.hSlideActuactor = new WActuatorGroup(
                     () -> intSubscriber(Sensors.SensorType.H_SLIDE_ENC), hSlides)
-                    .setPIDController(new PIDController(0.006, 0.0, 0.0004))
+                    .setPIDController(new PIDController(0.003, 0.0, 0.0004))
                     .setFeedforward(WActuatorGroup.FeedforwardMode.CONSTANT, 0.0)
 //                .setMotionProfile(0, new ProfileConstraints(1000, 5000, 2000))
                     .setErrorTolerance(50);
